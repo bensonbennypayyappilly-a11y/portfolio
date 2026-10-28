@@ -26,7 +26,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Jost:wght@300..600&family=Mrs+Saint+Delafield&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/story.css">
   <script src="js/main.js" defer></script>
+  <script src="js/story.js" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -57,8 +59,8 @@
     </a>
     <nav aria-label="Primary">
       <ul class="nav-links">
-        <li><a href="#work">Work</a></li>
-        <li><a href="#journey">Journey</a></li>
+        <li><a href="#top">Story</a></li>
+        <li><a href="#work">Work <sup>03</sup></a></li>
         <li><a href="#toolkit">Toolkit</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -93,81 +95,129 @@
   </header>
 
   <main id="main">
-    <!-- ========== HERO ========== -->
-    <section class="hero" id="top" aria-labelledby="hero-name">
-      <canvas class="hero-canvas" aria-hidden="true"></canvas>
-      <div class="container hero-inner">
-        <div class="hero-copy">
-          <p class="hello rise" style="--d:0ms">hey there, I'm<svg class="hello-arrow" viewBox="0 0 60 40" aria-hidden="true"><path d="M3 8c16-2 32 4 40 20M43 28l-2-10M43 28l-10-3"/></svg></p>
-          <h1 class="hero-name" id="hero-name" aria-label="Benson Benny">
-            <span class="name-word rise" style="--d:80ms" data-letters="500">Benson</span>
-            <span class="name-word rise" style="--d:160ms" data-letters="500">Benny</span>
-          </h1>
-          <p class="hero-tagline rise" style="--d:260ms">
-            <span class="sr-only">Builds products that get local businesses found, help people actually start, and catch failed payments early.</span>
-            <span aria-hidden="true">builds products that <span class="rotator"><span class="rotator-text" data-phrases='["get local businesses found.","help people actually start.","catch failed payments early."]'>get local businesses found.</span></span></span>
-          </p>
-          <p class="hero-lede rise" style="--d:340ms">
-            Product-minded builder and operations professional. I take ideas to working products, handling definition, UX, pricing and go-to-market myself. Before building, I spent 1 year 8 months at Amazon keeping high-risk seller accounts healthy with SQL, Excel and root cause analysis.
-          </p>
-          <div class="hero-ctas rise" style="--d:420ms">
-            <a class="btn btn-primary magnetic" href="#work">
-              Explore the work
-              <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-            </a>
-            <button class="btn magnetic" type="button" data-copy-email>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
-              Copy email
-            </button>
+    <!-- ========== STORY ========== -->
+    <section class="story" id="top" aria-label="My story, in seven chapters">
+      <div class="stage">
+        <svg class="story-svg" viewBox="0 0 1440 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <path class="ink baseline" d="M-3000,470 L4440,470"/>
+        <g class="scene" data-scene="0">
+          <path class="ink draw" d="M820,100 L820,250 M790,250 L850,250 L872,290 L768,290 Z"/>
+          <path class="ink draw bulb" d="M806,290 A14,14 0 0,0 834,290"/>
+          <path class="ink draw" d="M760,322 L744,346 M820,326 L820,352 M880,322 L896,346"/>
+        </g>
+        <g class="scene" data-scene="1">
+          <path class="ink draw" d="M420,470 L420,400 L500,400 L500,340 L580,340 M586,340 A6,6 0 1,1 574,340 A6,6 0 1,1 586,340"/>
+          <path class="ink draw" d="M460,470 L460,430 L560,430 L560,390 L640,390 M646,390 A6,6 0 1,1 634,390 A6,6 0 1,1 646,390"/>
+          <path class="ink draw" d="M680,250 L760,222 L840,250 L760,278 Z M720,264 L720,300 Q760,322 800,300 L800,264 M840,250 L846,300 L840,316 M846,300 L852,316"/>
+          <path class="ink draw" d="M700,200 Q720,180 740,190 M780,188 Q800,174 820,184"/>
+        </g>
+        <g class="scene" data-scene="2">
+          <path class="ink draw" d="M620,470 L620,330 L860,330 L860,470 M600,330 L600,296 L880,296 L880,330 M600,330 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 q17.5,22 35,0 M680,296 L680,262 L800,262 L800,296"/>
+          <path class="ink draw" d="M650,470 L650,380 L700,380 L700,470 M740,370 L830,370 L830,440 L740,440 Z M785,370 L785,440"/>
+          <path class="ink draw" d="M920,470 L920,330 L940,260 L960,330 L960,470 M990,470 L990,350 Q1030,280 1070,350 L1070,470 M1030,300 L1030,272 M1100,470 L1100,340 L1115,300 L1130,340 L1130,470"/>
+        </g>
+        <g class="scene" data-scene="3">
+          <path class="ink draw" d="M520,470 C600,470 640,190 760,190 C880,190 920,470 1000,470"/>
+          <path class="ink draw" d="M742,196 L800,176 L756,212 Z M756,212 L762,194"/>
+          <path class="ink draw" d="M1010,470 L1010,410 L1080,410 L1080,470 M1080,470 L1080,420 L1140,420 L1140,470 M1030,410 L1030,360 L1095,360 L1095,410 M1045,410 L1045,428 M1110,420 L1110,438 M1062,360 L1062,376"/>
+        </g>
+        <g class="scene" data-scene="4">
+          <path class="ink draw" d="M380,470 L470,470 L490,430 L512,500 L540,360 L566,470 L620,470"/>
+          <path class="ink draw" d="M660,300 L840,300 Q852,300 852,312 L852,410 Q852,422 840,422 L660,422 Q648,422 648,410 L648,312 Q648,300 660,300 Z M648,330 L852,330 M676,392 L736,392 M676,352 L704,352 L704,372 L676,372 Z"/>
+          <path class="ink draw" d="M900,262 Q900,224 930,218 Q960,224 960,262 L960,300 L972,316 L888,316 L900,300 Z M920,322 Q930,336 940,322 M930,218 L930,206 M980,240 Q992,258 980,276 M880,240 Q868,258 880,276"/>
+        </g>
+        <g class="scene" data-scene="5">
+          <path class="ink draw" d="M600,470 L600,370 L720,370 L720,470 M590,370 L590,344 L730,344 L730,370 M590,370 q17.5,16 35,0 q17.5,16 35,0 q17.5,16 35,0 q17.5,16 35,0 M640,470 L640,410 L680,410 L680,470"/>
+          <path class="ink draw" d="M750,470 L750,330 L870,330 L870,470 M740,330 L810,290 L880,330 M780,360 L840,360 L840,410 L780,410 Z M795,470 L795,430 L825,430 L825,470"/>
+          <path class="ink draw" d="M900,470 L900,380 L1010,380 L1010,470 M890,380 L890,356 L1020,356 L1020,380 M890,380 q16.25,14 32.5,0 q16.25,14 32.5,0 q16.25,14 32.5,0 q16.25,14 32.5,0 M925,400 L985,400 L985,440 L925,440 Z"/>
+          <path class="ink draw" d="M810,170 C786,170 772,190 772,208 C772,236 810,268 810,268 C810,268 848,236 848,208 C848,190 834,170 810,170 Z M822,206 A12,12 0 1,1 798,206 A12,12 0 1,1 822,206 M860,190 Q872,206 860,222 M760,190 Q748,206 760,222"/>
+        </g>
+        <g class="scene" data-scene="6">
+          <path class="ink draw" d="M600,470 L600,440 L680,440 L680,410 L760,410 L760,380 L840,380 L840,350 L920,350 L920,470"/>
+          <path class="ink draw" d="M890,350 L890,290 L930,302 L890,314"/>
+          <path class="ink draw" d="M980,180 L1040,180 Q1052,180 1052,192 L1052,302 Q1052,314 1040,314 L980,314 Q968,314 968,302 L968,192 Q968,180 980,180 Z M1000,190 L1020,190 M990,250 L1005,265 L1032,232"/>
+        </g>
+        <g class="me" id="me" style="transform: translate(700px, 470px)">
+          <g class="me-flip"><g class="me-bob">
+            <path class="ink" pathLength="1" d="M20,-160 A20,20 0 1,1 -20,-160 A20,20 0 1,1 20,-160"/>
+            <path class="fill" d="M-21,-162 C-23,-184 0,-192 14,-184 C22,-180 24,-170 21,-162 C14,-171 2,-175 -8,-171 C-14,-168 -19,-165 -21,-162 Z"/>
+            <path class="fill" d="M-8.8,-158 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 M5.2,-158 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0"/>
+            <path class="ink" pathLength="1" d="M-6,-150 Q0,-145 6,-150 M0,-140 L0,-133 M-24,-127 Q0,-135 24,-127 L20,-70 L-20,-70 Z M-8,-131 L0,-123 L8,-131 M-11,-70 L-13,-2 L-24,-2 M11,-70 L13,-2 L24,-2"/>
+            <g class="arms on" data-arms="wave"><path class="ink" pathLength="1" d="M-24,-125 Q-34,-100 -31,-74 M24,-125 Q46,-140 50,-172 M50,-172 l-6,-8 M50,-172 l2,-10 M50,-172 l8,-6"/></g>
+            <g class="arms" data-arms="carry"><path class="ink" pathLength="1" d="M-24,-125 Q-32,-104 -12,-100 M24,-125 Q32,-104 12,-100 M-40,-100 L40,-100 M-30,-100 L-28,-116 L-16,-116 L-14,-100 M14,-100 C14,-112 30,-112 30,-100"/></g>
+            <g class="arms" data-arms="laptop"><path class="ink" pathLength="1" d="M-24,-125 Q-30,-104 -16,-98 M24,-125 Q30,-104 16,-98"/><path class="ink occlude" pathLength="1" d="M-20,-124 L22,-124 L26,-98 L-26,-98 Z M-32,-98 L32,-98"/></g>
+            <g class="arms" data-arms="point"><path class="ink" pathLength="1" d="M-24,-125 Q-34,-100 -31,-74 M24,-125 L56,-150 L66,-156"/></g>
+          </g></g>
+        </g>
+        </svg>
+
+        <article class="chapter chapter-intro" data-x="700" data-pose="wave" data-name="The beginning" aria-labelledby="ch0">
+          <p class="ch-caption">A story in one line</p>
+          <h1 class="story-name" id="ch0" aria-label="Benson Benny"><span data-letters="500">Benson</span> <span data-letters="500">Benny</span></h1>
+          <div class="ch-body"><p class="ch-text">I take products from idea to launch. Founder of LuvLit and OiDoit. This is how I got here, drawn in one line.</p>
           </div>
-          <div class="stickers" aria-hidden="true">
-            <span class="sticker s1" style="--r:-7deg" data-cursor="drag">built solo</span>
-            <span class="sticker s2" style="--r:5deg" data-cursor="drag">3 products · idea → launch</span>
-            <span class="sticker s3" style="--r:-3deg" data-cursor="drag">KFC shifts → Amazon → founder</span>
+        </article>
+
+        <article class="chapter" data-x="980" data-pose="wave" data-name="Engineering" aria-labelledby="ch1">
+          <p class="ch-caption">2019 · Anna University, India</p>
+          <h2 class="ch-title" id="ch1">An engineering degree.<br>A taste for systems.</h2>
+          <div class="ch-body"><p class="ch-text">I studied Electrical &amp; Electronics Engineering. Seeing how the parts of a system fit together is still how I look at every product.</p>
+          </div>
+        </article>
+
+        <article class="chapter" data-x="500" data-pose="carry" data-name="United Kingdom" aria-labelledby="ch2">
+          <p class="ch-caption">2021 – 2024 · Weston-on-the-Green &amp; Oxford, UK</p>
+          <h2 class="ch-title" id="ch2">Long shifts.<br>Real operations.</h2>
+          <div class="ch-body"><p class="ch-text">Assistant Manager at a high-volume KFC: scheduling, inventory, service and Excel reports so the team could see how we were doing. Then F&amp;B at Holiday Inn Oxford, learning service recovery.</p>
+          </div>
+        </article>
+
+        <article class="chapter" data-x="430" data-pose="laptop" data-name="Amazon" aria-labelledby="ch3">
+          <p class="ch-caption">2024 · Back home to Bangalore, India</p>
+          <h2 class="ch-title" id="ch3">Back to India.<br>Into the data.</h2>
+          <div class="ch-body"><p class="ch-text">Seller Partner Support at Amazon for 1 year 8 months. High-risk global seller accounts, SQL and Excel, root cause analysis and Andon Cord escalations.</p>
+          </div>
+        </article>
+
+        <article class="chapter" data-x="1040" data-pose="laptop" data-name="Recoora" aria-labelledby="ch4">
+          <p class="ch-caption">Sep 2025 · Recoora</p>
+          <h2 class="ch-title" id="ch4">My first product.<br>Payments that speak up.</h2>
+          <div class="ch-body"><p class="ch-text">An AI-powered Stripe alert system on Supabase: real-time payment monitoring, automated alerts and retention ideas. I learned the whole cycle: scope, build, ship, iterate.</p>
+          <p class="ch-links"><a href="#recoora">Try the demo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a><a href="https://recoora.vercel.app" target="_blank" rel="noopener">recoora.vercel.app<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></p>
+          </div>
+        </article>
+
+        <article class="chapter" data-x="500" data-pose="point" data-name="LuvLit" aria-labelledby="ch5">
+          <p class="ch-caption">Jan 2026 · LuvLit</p>
+          <h2 class="ch-title" id="ch5">Local businesses<br>deserve to be found.</h2>
+          <div class="ch-body"><p class="ch-text">I built and launched LuvLit end to end: a website builder, listings and online payments, with structured QA before launch.</p>
+          <p class="ch-links"><a href="#luvlit">Try the demo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a><a href="https://luvlit.in" target="_blank" rel="noopener">luvlit.in<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></p>
+          </div>
+        </article>
+
+        <article class="chapter" data-x="520" data-pose="point" data-name="OiDoit" aria-labelledby="ch6">
+          <p class="ch-caption">Mar 2026 · OiDoit</p>
+          <h2 class="ch-title" id="ch6">Starting is<br>the hard part.</h2>
+          <div class="ch-body"><p class="ch-text">Now building OiDoit, a companion that helps people start and follow through, without shame. Pre-launch, with a 30-day build-in-public launch underway.</p>
+          <p class="ch-links"><a href="#oidoit">Try the demo<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a></p>
+          </div>
+        </article>
+
+        <div class="story-bar">
+          <p class="ch-now"><span class="ch-num">00</span><span class="ch-name">The beginning</span></p>
+          <button class="keep-going" type="button"><span>Keep going</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
+          <div class="ticks" role="group" aria-label="Jump to a chapter">
+          <button class="tick" type="button" aria-label="Chapter 00: The beginning"></button>
+          <button class="tick" type="button" aria-label="Chapter 01: Engineering"></button>
+          <button class="tick" type="button" aria-label="Chapter 02: United Kingdom"></button>
+          <button class="tick" type="button" aria-label="Chapter 03: Amazon"></button>
+          <button class="tick" type="button" aria-label="Chapter 04: Recoora"></button>
+          <button class="tick" type="button" aria-label="Chapter 05: LuvLit"></button>
+          <button class="tick" type="button" aria-label="Chapter 06: OiDoit"></button>
           </div>
         </div>
-
-        <aside class="status-card spot rise" style="--d:520ms" aria-label="What I'm building">
-          <div class="status-head">
-            <span class="status-title">what I'm building</span>
-            <span class="status-ok"><i aria-hidden="true"></i>Shipping</span>
-          </div>
-          <a class="status-row" href="#luvlit" style="--p: var(--c-luvlit)">
-            <span class="sr-mark" aria-hidden="true"></span>
-            <span class="sr-text"><b>LuvLit</b><span>Websites &amp; discovery for local businesses</span></span>
-            <span class="pill pill-live">Live</span>
-          </a>
-          <a class="status-row" href="#oidoit" style="--p: var(--c-oidoit)">
-            <span class="sr-mark" aria-hidden="true"></span>
-            <span class="sr-text"><b>OiDoit</b><span>Execution companion, without shame</span></span>
-            <span class="pill pill-pre">Pre-launch</span>
-          </a>
-          <a class="status-row" href="#recoora" style="--p: var(--c-recoora)">
-            <span class="sr-mark" aria-hidden="true"></span>
-            <span class="sr-text"><b>Recoora</b><span>AI-powered Stripe alert system</span></span>
-            <span class="pill pill-arch">Archived</span>
-          </a>
-          <p class="status-now"><span class="label">Now</span>Running a 30-day build-in-public launch for OiDoit across X, Reddit, Instagram and LinkedIn.</p>
-        </aside>
       </div>
     </section>
-
-    <!-- ========== STATS ========== -->
-    <section class="stats" aria-label="At a glance">
-      <div class="container stats-grid" data-stagger>
-        <div class="stat"><p class="stat-num"><span data-count="3">3</span></p><p class="stat-label">products taken from idea to a working build</p></div>
-        <div class="stat"><p class="stat-num"><span data-count="1">1</span><small>y</small> <span data-count="8">8</span><small>m</small></p><p class="stat-label">in Amazon Seller Partner Support</p></div>
-        <div class="stat"><p class="stat-num"><span data-count="2">2</span><small>y</small> <span data-count="10">10</span><small>m</small></p><p class="stat-label">running a high-volume KFC in the UK</p></div>
-        <div class="stat"><p class="stat-num"><span data-count="2">2</span></p><p class="stat-label">countries worked in: India &amp; the UK</p></div>
-      </div>
-    </section>
-
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Simple UX</span><span>Low friction</span><span>Decisions backed by data</span><span>Customer feedback first</span><span>Root cause over quick fixes</span><span>No shame, just progress</span>
-        <span>Simple UX</span><span>Low friction</span><span>Decisions backed by data</span><span>Customer feedback first</span><span>Root cause over quick fixes</span><span>No shame, just progress</span>
-      </div>
-    </div>
 
     <!-- ========== WORK ========== -->
     <section class="section" id="work" aria-labelledby="work-title">
@@ -405,138 +455,12 @@
       </div>
     </section>
 
-    <!-- ========== JOURNEY ========== -->
-    <section class="section section-alt" id="journey" aria-labelledby="journey-title">
-      <div class="container">
-        <header class="section-head reveal">
-          <div>
-            <p class="kicker"><span class="num">02</span>Journey</p>
-            <h2 class="section-title" id="journey-title">The <em>changelog.</em></h2>
-          </div>
-          <p class="section-sub">From restaurant floors in the UK to marketplace operations at Amazon to shipping my own products. Every version added something I still use.</p>
-        </header>
-
-        <ol class="timeline">
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v0.1</span><span class="tl-date">2019</span></div>
-            <div class="tl-card">
-              <span class="chip">Education</span>
-              <h3>Bachelor of Engineering, Electrical &amp; Electronics</h3>
-              <p class="tl-org">Anna University</p>
-              <p class="tl-note">Where the systems thinking started.</p>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v1.0</span><span class="tl-date">Mar 2021 – Jan 2024</span></div>
-            <div class="tl-card">
-              <span class="chip">Operations</span>
-              <h3>Restaurant Assistant Manager</h3>
-              <p class="tl-org">KFC · Weston-on-the-Green, United Kingdom</p>
-              <ul class="points">
-                <li>Managed daily operations of a high-volume restaurant: staff scheduling, inventory and service delivery.</li>
-                <li>Built Excel reporting to give the team better visibility of performance.</li>
-                <li>Streamlined workflows to cut waste and improve efficiency.</li>
-              </ul>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v1.1</span><span class="tl-date">Sep 2023 – Jan 2024</span></div>
-            <div class="tl-card">
-              <span class="chip">Hospitality</span>
-              <h3>F&amp;B Crew Member</h3>
-              <p class="tl-org">Holiday Inn · Oxford, United Kingdom</p>
-              <ul class="points">
-                <li>Handled guest requests, complaints and service recovery while keeping service standards.</li>
-              </ul>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v2.0</span><span class="tl-date">Feb 2024 – Sep 2025</span></div>
-            <div class="tl-card">
-              <span class="chip">Support · Data</span>
-              <h3>Seller Partner Support Associate (CSAC)</h3>
-              <p class="tl-org">Amazon · Bangalore, India (Remote)</p>
-              <ul class="points">
-                <li>Managed high-volume, high-risk global seller accounts, protecting account health, compliance and revenue continuity.</li>
-                <li>Analysed defects, returns, concessions and performance KPIs with Excel and SQL to find recurring issues.</li>
-                <li>Ran root cause analysis, recommended process improvements and handled Andon Cord escalations.</li>
-                <li>Worked with Fulfilment, Retail, Product Safety and Compliance teams to resolve complex cases.</li>
-                <li>Supported sellers on catalog and listing quality, policy adherence and performance notifications.</li>
-              </ul>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v3.0</span><span class="tl-date">Sep 2025 – Jan 2026</span></div>
-            <div class="tl-card" style="--p: var(--c-recoora)">
-              <span class="chip chip-p">Founder</span>
-              <h3>Recoora</h3>
-              <p class="tl-org">AI-powered Stripe alert system</p>
-              <p class="tl-note">First product shipped. Learned the full cycle: scope, build, deploy, iterate. <a href="#recoora">See it ↑</a> <a href="https://recoora.vercel.app" target="_blank" rel="noopener">Live site ↗</a></p>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v3.1</span><span class="tl-date">Jan 2026 – now</span></div>
-            <div class="tl-card" style="--p: var(--c-luvlit)">
-              <span class="chip chip-p">Founder · Launched</span>
-              <h3>LuvLit</h3>
-              <p class="tl-org">Websites, listings &amp; payments for local businesses</p>
-              <p class="tl-note">Built and launched end to end, solo. <a href="#luvlit">See it ↑</a></p>
-            </div>
-          </li>
-          <li class="tl-item reveal">
-            <div class="tl-side"><span class="tl-ver">v3.2</span><span class="tl-date">Mar 2026 – now</span></div>
-            <div class="tl-card" style="--p: var(--c-oidoit)">
-              <span class="chip chip-p">Founder · Pre-launch</span>
-              <h3>OiDoit</h3>
-              <p class="tl-org">Adaptive execution companion</p>
-              <p class="tl-note">Pricing, waitlist and a 30-day build-in-public launch underway. <a href="#oidoit">See it ↑</a></p>
-            </div>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- ========== APPROACH ========== -->
-    <section class="section" id="approach" aria-labelledby="approach-title">
-      <div class="container">
-        <header class="section-head reveal">
-          <div>
-            <p class="kicker"><span class="num">03</span>Approach</p>
-            <h2 class="section-title" id="approach-title">How I <em>build.</em></h2>
-          </div>
-          <p class="section-sub">Simple UX, low friction, and decisions backed by data and customer feedback. That's what I learned in operations, and it's how I build products now.</p>
-        </header>
-        <div class="principles" data-stagger>
-          <article class="principle spot">
-            <span class="p-num label">01</span>
-            <h3>Find the friction</h3>
-            <p>Every product starts with one question: where do people get stuck? Then I remove that step. Simple beats clever.</p>
-          </article>
-          <article class="principle spot">
-            <span class="p-num label">02</span>
-            <h3>Fix the root cause</h3>
-            <p>Amazon taught me to fix the pattern, not just the ticket. A recurring issue is usually a product signal.</p>
-          </article>
-          <article class="principle spot">
-            <span class="p-num label">03</span>
-            <h3>Data and people</h3>
-            <p>Numbers tell me what is happening. Customer feedback tells me why. I want both before I decide.</p>
-          </article>
-          <article class="principle spot">
-            <span class="p-num label">04</span>
-            <h3>Ship with guardrails</h3>
-            <p>Get a working version out, QA every flow, and write down what the product will never do, like OiDoit's no-shame rule.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <!-- ========== TOOLKIT ========== -->
     <section class="section section-alt" id="toolkit" aria-labelledby="toolkit-title">
       <div class="container">
         <header class="section-head reveal">
           <div>
-            <p class="kicker"><span class="num">04</span>Toolkit</p>
+            <p class="kicker"><span class="num">02</span>Toolkit</p>
             <h2 class="section-title" id="toolkit-title">Skills, <em>mapped to proof.</em></h2>
           </div>
           <p class="section-sub"><span class="hint-fine">Hover</span><span class="hint-coarse">Tap</span> a skill to see where I've used it, or pick a role to see what it taught me.</p>
@@ -594,9 +518,10 @@
 
     <!-- ========== CONTACT ========== -->
     <section class="section contact" id="contact" aria-labelledby="contact-title">
-      <div class="container">
-        <p class="kicker reveal"><span class="num">05</span>Contact</p>
-        <h2 class="contact-title reveal" id="contact-title">Let's build something people <em>actually use.</em></h2>
+      <div class="container contact-grid">
+        <div class="contact-copy">
+        <p class="kicker reveal"><span class="num">03</span>The line continues</p>
+        <h2 class="contact-title reveal" id="contact-title">Let's draw the <em>next part.</em></h2>
         <p class="contact-sub reveal">Got a role, a collaboration or just a good product problem? My inbox is open. I'm always happy to talk local business tech, design that doesn't shame people, or payments tooling.</p>
         <div class="contact-actions reveal">
           <button class="email-btn magnetic" type="button" data-copy-email data-cursor="copy">
@@ -613,6 +538,23 @@
           </div>
         </div>
         <p class="contact-meta reveal label"><span class="pulse" aria-hidden="true"></span><span>Bangalore, India · it's <span id="local-time">now</span> here</span></p>
+        </div>
+        <svg class="contact-svg reveal" viewBox="0 0 600 560" aria-hidden="true">
+          <path class="ink" pathLength="1" d="M-1600,470 L1400,470"/>
+          <path class="ink" pathLength="1" d="M400,-300 L400,226 M370,226 L430,226 L452,266 L348,266 Z"/>
+          <path class="ink bulb" pathLength="1" d="M386,266 A14,14 0 0,0 414,266"/>
+          <path class="ink" pathLength="1" d="M440,258 L440,324"/>
+          <circle class="fill" cx="440" cy="330" r="5"/>
+          <g class="me" transform="translate(356 470)">
+          <g class="me-flip"><g class="me-bob">
+            <path class="ink" pathLength="1" d="M20,-160 A20,20 0 1,1 -20,-160 A20,20 0 1,1 20,-160"/>
+            <path class="fill" d="M-21,-162 C-23,-184 0,-192 14,-184 C22,-180 24,-170 21,-162 C14,-171 2,-175 -8,-171 C-14,-168 -19,-165 -21,-162 Z"/>
+            <path class="fill" d="M-8.8,-158 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0 M5.2,-158 a1.8,1.8 0 1,0 3.6,0 a1.8,1.8 0 1,0 -3.6,0"/>
+            <path class="ink" pathLength="1" d="M-6,-150 Q0,-145 6,-150 M0,-140 L0,-133 M-24,-127 Q0,-135 24,-127 L20,-70 L-20,-70 Z M-8,-131 L0,-123 L8,-131 M-11,-70 L-13,-2 L-24,-2 M11,-70 L13,-2 L24,-2"/>
+            <g class="arms on" data-arms="reach"><path class="ink" pathLength="1" d="M-24,-125 Q-34,-100 -31,-74 M24,-125 Q56,-128 86,-134"/></g>
+          </g></g>
+        </g>
+        </svg>
       </div>
     </section>
   </main>
