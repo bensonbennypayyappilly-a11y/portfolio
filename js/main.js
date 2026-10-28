@@ -1,0 +1,897 @@
+/* ==========================================================================
+   Benson Benny: portfolio interactions
+   ========================================================================== */
+(() => {
+  'use strict';
+
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+  const root = document.documentElement;
+  const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const mqFine = matchMedia('(hover: hover) and (pointer: fine)');
+  const reduced = () => mqReduce.matches;
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const EMAIL = 'bensonbenny.payyappilly@gmail.com';
+  const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+
+  /* ---------- Toast ---------- */
+  const toastEl = $('#toast');
+  let toastTimer;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  }
+
+  /* ---------- Copy email ---------- */
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+      document.body.append(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+  async function copyEmail() {
+    const ok = await copyText(EMAIL);
+    toast(ok ? 'Email copied. Talk soon!' : EMAIL);
+  }
+  $$('[data-copy-email]').forEach((b) => b.addEventListener('click', copyEmail));
+
+  /* ---------- Theme ---------- */
+  const metaTheme = $('meta[name="theme-color"]');
+  function applyTheme(theme, persist) {
+    root.dataset.theme = theme;
+    if (persist) { try { localStorage.setItem('theme', theme); } catch { /* storage unavailable */ } }
+    metaTheme.setAttribute('content', theme === 'dark' ? '#0b0b0c' : '#f6f3ee');
+    $$('[data-theme-toggle]').forEach((b) => b.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'));
+    window.dispatchEvent(new Event('themechange'));
+  }
+  function toggleTheme() { applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true); }
+  applyTheme(root.dataset.theme || 'dark', false);
+  $$('[data-theme-toggle]').forEach((b) => b.addEventListener('click', toggleTheme));
+
+  /* ---------- Small details ---------- */
+  $$('.kbd-hint').forEach((k) => { k.textContent = isMac ? '⌘K' : 'Ctrl K'; });
+  $('#year').textContent = new Date().getFullYear();
+
+  const localTime = $('#local-time');
+  if (localTime) {
+    const fmt = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true });
+    const tick = () => { localTime.textContent = fmt.format(new Date()); };
+    tick();
+    setInterval(tick, 20000);
+  }
+
+  /* ---------- Scroll: nav state, progress bar, timeline ---------- */
+  const nav = $('.nav');
+  const bar = $('.progress span');
+  const timeline = $('.timeline');
+  const tlItems = $$('.tl-item');
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      const y = window.scrollY;
+      nav.classList.toggle('scrolled', y > 8);
+      const max = root.scrollHeight - window.innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+      if (timeline) {
+        const r = timeline.getBoundingClientRect();
+        const mark = window.innerHeight * 0.62;
+        const p = Math.max(0, Math.min(1, (mark - r.top) / r.height));
+        timeline.style.setProperty('--progress', p.toFixed(4));
+        tlItems.forEach((li) => li.classList.toggle('lit', li.getBoundingClientRect().top + 30 < mark));
+      }
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  /* Active nav link */
+  const navLinks = $$('.nav-links a');
+  const sectionObs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${e.target.id}`));
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  $$('main section[id]').forEach((s) => sectionObs.observe(s));
+
+  /* ---------- Reveal on scroll ---------- */
+  $$('[data-stagger]').forEach((parent) => {
+    Array.from(parent.children).forEach((child, i) => {
+      child.classList.add('reveal');
+      child.style.setProperty('--d', `${i * 80}ms`);
+    });
+  });
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('in');
+      revealObs.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+  $$('.reveal').forEach((el) => revealObs.observe(el));
+
+  /* ---------- Count-up stats ---------- */
+  function countUp(el) {
+    const target = Number(el.dataset.count);
+    if (reduced()) { el.textContent = target; return; }
+    const start = performance.now();
+    const dur = 1200;
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    el.textContent = '0';
+    requestAnimationFrame(step);
+  }
+  const statsEl = $('.stats');
+  if (statsEl) {
+    const statObs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      $$('[data-count]', statsEl).forEach(countUp);
+      statObs.disconnect();
+    }, { threshold: 0.4 });
+    statObs.observe(statsEl);
+  }
+
+  /* ---------- Hero rotator ---------- */
+  const rot = $('.rotator-text');
+  if (rot) {
+    const phrases = JSON.parse(rot.dataset.phrases);
+    const colors = ['var(--c-luvlit)', 'var(--c-oidoit)', 'var(--c-recoora)'];
+    let i = 0;
+    const swap = () => {
+      rot.textContent = phrases[i];
+      rot.style.setProperty('--rc', colors[i % colors.length]);
+    };
+    setInterval(() => {
+      if (document.hidden) return;
+      i = (i + 1) % phrases.length;
+      if (reduced()) { swap(); return; }
+      rot.classList.add('out');
+      setTimeout(() => {
+        swap();
+        rot.classList.remove('out');
+        rot.classList.add('in');
+        void rot.offsetWidth;
+        rot.classList.remove('in');
+      }, 400);
+    }, 3200);
+  }
+
+  /* ---------- Hero canvas: reactive dot field ---------- */
+  (function heroField() {
+    const canvas = $('.hero-canvas');
+    if (!canvas) return;
+    const hero = canvas.parentElement;
+    const ctx = canvas.getContext('2d');
+    const TAU = Math.PI * 2;
+    const RADIUS = 170;
+    let w = 0, h = 0, dots = [], colDot = '#fff', colAcc = '#f60';
+    let visible = true, raf = 0, lastMove = -1e4;
+    const m = { x: 0, y: 0, tx: 0, ty: 0 };
+
+    function readColors() {
+      const cs = getComputedStyle(root);
+      colDot = cs.getPropertyValue('--grid-dot').trim();
+      colAcc = cs.getPropertyValue('--accent').trim();
+    }
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = hero.clientWidth;
+      h = hero.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const gap = w < 640 ? 22 : 26;
+      dots = [];
+      for (let y = gap / 2; y < h; y += gap) for (let x = gap / 2; x < w; x += gap) dots.push(x, y);
+      if (!m.x) { m.x = m.tx = w * 0.6; m.y = m.ty = h * 0.45; }
+      draw(performance.now());
+    }
+    function draw(now) {
+      const t = now / 1000;
+      const still = reduced();
+      if (!still && now - lastMove > 2500) {
+        // Drift on its own when nobody is pointing at it (and on touch screens).
+        m.tx = w * (0.55 + 0.3 * Math.sin(t * 0.33));
+        m.ty = h * (0.45 + 0.28 * Math.sin(t * 0.51 + 1));
+      }
+      m.x += (m.tx - m.x) * 0.08;
+      m.y += (m.ty - m.y) * 0.08;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = colDot;
+      ctx.beginPath();
+      const hot = [];
+      for (let i = 0; i < dots.length; i += 2) {
+        let x = dots[i], y = dots[i + 1];
+        const r = still ? 1 : 0.8 + 0.5 * (Math.sin(x * 0.011 + y * 0.007 + t * 1.1) * 0.5 + 0.5);
+        const dx = x - m.x, dy = y - m.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (!still && d < RADIUS) {
+          const f = 1 - d / RADIUS;
+          const e = f * f;
+          const push = (e * 16) / (d || 1);
+          hot.push(x + dx * push, y + dy * push, r + e * 2.6, e);
+        } else {
+          ctx.moveTo(x + r, y);
+          ctx.arc(x, y, r, 0, TAU);
+        }
+      }
+      ctx.fill();
+      ctx.fillStyle = colAcc;
+      for (let i = 0; i < hot.length; i += 4) {
+        ctx.globalAlpha = 0.2 + hot[i + 3] * 0.8;
+        ctx.beginPath();
+        ctx.arc(hot[i], hot[i + 1], hot[i + 2], 0, TAU);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    const loop = (now) => { draw(now); raf = requestAnimationFrame(loop); };
+    const start = () => { if (!raf && visible && !document.hidden && !reduced()) raf = requestAnimationFrame(loop); };
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+
+    hero.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = canvas.getBoundingClientRect();
+      m.tx = e.clientX - r.left;
+      m.ty = e.clientY - r.top;
+      lastMove = performance.now();
+    });
+    hero.addEventListener('pointerleave', () => { lastMove = -1e4; });
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }).observe(hero);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    mqReduce.addEventListener('change', () => { stop(); draw(performance.now()); start(); });
+    window.addEventListener('themechange', () => { readColors(); draw(performance.now()); });
+    let rt;
+    new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(resize, 120); }).observe(hero);
+
+    readColors();
+    resize();
+    start();
+  })();
+
+  /* ---------- Pointer niceties (desktop only) ---------- */
+  if (mqFine.matches) {
+    $$('.spot').forEach((el) => {
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        el.style.setProperty('--my', `${e.clientY - r.top}px`);
+      });
+    });
+    $$('.magnetic').forEach((el) => {
+      el.addEventListener('pointermove', (e) => {
+        if (reduced()) return;
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - r.left - r.width / 2;
+        const y = e.clientY - r.top - r.height / 2;
+        el.style.transform = `translate(${x * 0.16}px, ${y * 0.28}px)`;
+      });
+      el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+    });
+  }
+
+  /* ---------- Accessible radio groups (roving tabindex) ---------- */
+  function radioGroup(group, onChange) {
+    const items = $$('[role="radio"]', group);
+    const select = (el, focus) => {
+      items.forEach((b) => {
+        const on = b === el;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      if (focus) el.focus();
+      onChange(el.dataset.value, el);
+    };
+    items.forEach((b, i) => {
+      b.addEventListener('click', () => select(b, false));
+      b.addEventListener('keydown', (e) => {
+        let j = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % items.length;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + items.length) % items.length;
+        if (j !== null) { e.preventDefault(); select(items[j], true); }
+      });
+    });
+    const initial = items.find((b) => b.getAttribute('aria-checked') === 'true') || items[0];
+    items.forEach((b) => { b.tabIndex = b === initial ? 0 : -1; });
+    return { clear: () => items.forEach((b) => b.setAttribute('aria-checked', 'false')), items, select };
+  }
+
+  /* ==========================================================================
+     Demo 1: LuvLit mini site builder
+     ========================================================================== */
+  (function luvlitDemo() {
+    const box = $('[data-demo="luvlit"]');
+    if (!box) return;
+    const TYPES = {
+      bakery: { label: 'Bakery', head: (a) => `Baked fresh this morning in ${a}.`, sub: 'Cakes, breads and cookies made in small batches. Order ahead or walk in.',
+        items: [['Celebration cakes', 'Made to order'], ['Fresh breads', 'Out by 8am'], ['Cookies', 'By the box']] },
+      cafe: { label: 'Café', head: (a) => `Good coffee and slow mornings in ${a}.`, sub: 'Filter coffee, all-day breakfast and a quiet corner to work from.',
+        items: [['Filter coffee', 'Brewed fresh'], ['Breakfast', 'Served all day'], ['Work corner', 'Stay a while']] },
+      salon: { label: 'Salon', head: (a) => `Look sharp, feel good, right here in ${a}.`, sub: 'Cuts, colour and grooming. Book a slot in seconds, no calls needed.',
+        items: [['Haircuts', 'From 30 min'], ['Colour', 'Consult first'], ['Grooming', 'Walk-ins welcome']] },
+      tailor: { label: 'Tailor', head: (a) => `Made to fit, stitched in ${a}.`, sub: 'Alterations, custom fits and uniforms, done on time and on budget.',
+        items: [['Alterations', 'Same week'], ['Custom fits', 'Measured in store'], ['Uniforms', 'Bulk orders']] },
+      tuition: { label: 'Tuition', head: (a) => `Patient tutoring for classes 6 to 12 in ${a}.`, sub: 'Small batches and regular progress updates for parents.',
+        items: [['Maths', 'Classes 6–12'], ['Science', 'Concepts first'], ['Spoken English', 'Weekend batch']] },
+    };
+    const nameIn = $('#ll-name');
+    const areaIn = $('#ll-area');
+    const site = $('#ll-site');
+    const out = {
+      title: $('#ll-title'), initial: $('#ll-initial'), kicker: $('#ll-kicker'), head: $('#ll-headline'),
+      sub: $('#ll-sub'), url: $('#ll-url'), services: $('#ll-services'),
+    };
+    let type = 'bakery';
+
+    const slug = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '').trim().replace(/[\s-]+/g, '-') || 'your-business';
+    const flash = (el) => { if (reduced()) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+
+    function render(changedType) {
+      const name = nameIn.value.trim() || 'Your Business';
+      const area = areaIn.value.trim() || 'your area';
+      const T = TYPES[type];
+      out.title.textContent = name;
+      out.initial.textContent = name.charAt(0).toUpperCase();
+      out.kicker.textContent = `${T.label} · ${area}`;
+      out.head.textContent = T.head(area);
+      out.sub.textContent = T.sub;
+      out.url.textContent = `${slug(name)} · preview`;
+      site.setAttribute('aria-label', `Website preview for ${name}, a ${T.label.toLowerCase()} in ${area}`);
+      if (changedType) {
+        out.services.replaceChildren(...T.items.map(([title, note]) => {
+          const card = document.createElement('div');
+          card.className = 'site-card';
+          const b = document.createElement('b');
+          b.textContent = title;
+          const s = document.createElement('span');
+          s.textContent = note;
+          card.append(b, s);
+          return card;
+        }));
+        flash(out.head);
+        flash(out.sub);
+      }
+    }
+    nameIn.addEventListener('input', () => render(false));
+    areaIn.addEventListener('input', () => render(false));
+    radioGroup($('#ll-type'), (v) => { type = v; render(true); });
+    radioGroup($('#ll-color'), (v) => { site.style.setProperty('--brand', v); });
+
+    const publish = $('#ll-publish');
+    const status = $('#ll-status');
+    publish.addEventListener('click', () => {
+      if (publish.disabled) return;
+      publish.disabled = true;
+      box.classList.remove('publishing');
+      void box.offsetWidth;
+      box.classList.add('publishing');
+      const steps = ['Checking the mobile layout…', 'Adding online payments…', 'Listing it for local discovery…'];
+      let k = 0;
+      status.textContent = steps[0];
+      const iv = setInterval(() => {
+        k += 1;
+        if (k < steps.length) { status.textContent = steps[k]; return; }
+        clearInterval(iv);
+        status.innerHTML = 'Preview ready. <a href="https://luvlit.in" target="_blank" rel="noopener">Build the real one at luvlit.in ↗</a>';
+        publish.textContent = 'Publish again';
+        publish.disabled = false;
+      }, 680);
+    });
+
+    render(true);
+  })();
+
+  /* ==========================================================================
+     Demo 2: OiDoit first-step finder
+     ========================================================================== */
+  (function oidoitDemo() {
+    const app = $('#oi-app');
+    if (!app) return;
+    const TASKS = {
+      emails: { label: 'Emails', steps: {
+        low: ['Open your inbox. That’s it. Just look.', 'Star the one email that matters most.', 'Write one line back. Send it or save it as a draft.'],
+        mid: ['Reply to the easiest email first, in two lines or fewer.', 'Archive anything that doesn’t need an answer.', 'Pick the next reply and give it five minutes.'],
+        high: ['Clear every quick reply you can in ten minutes.', 'Draft the one reply you’ve been avoiding.', 'Archive, snooze or delete the rest.'],
+      } },
+      room: { label: 'Tidy room', steps: {
+        low: ['Pick up five things and put them where they live.', 'Clear just one surface, like your bedside table.', 'Open a window and make the bed. Done is done.'],
+        mid: ['Put on one song and tidy until it ends.', 'Gather everything that belongs in another room.', 'Clear the floor, nothing else.'],
+        high: ['Set ten minutes and work clockwise around the room.', 'Fill one bag with things to donate or bin.', 'Wipe down the surfaces you just cleared.'],
+      } },
+      move: { label: 'Exercise', steps: {
+        low: ['Put your shoes on. That’s the whole step.', 'Stretch gently for a couple of minutes, wherever you are.', 'Walk to the end of the street and back.'],
+        mid: ['Go for a five-minute walk. Anywhere counts.', 'Pack your gym bag and leave it by the door.', 'Do one short routine you already know.'],
+        high: ['Do ten minutes of whatever movement you enjoy.', 'Plan tomorrow’s session and put it in your calendar.', 'Try one new move or route today.'],
+      } },
+      study: { label: 'Study', steps: {
+        low: ['Open your notes to the right page. No reading yet.', 'Read just one paragraph.', 'Write down one thing you didn’t know.'],
+        mid: ['Read for five minutes, then write a one-line summary.', 'Answer one practice question.', 'List what you’ll cover in the next session.'],
+        high: ['Ten focused minutes on the hardest topic first.', 'Teach the idea out loud as if to a friend.', 'Do three practice questions without notes.'],
+      } },
+      paperwork: { label: 'Paperwork', steps: {
+        low: ['Find the document. Just put it on the table.', 'Read the first page. Don’t fill anything in.', 'Write down the one thing you need to ask about.'],
+        mid: ['Fill in only the easy fields: name, date, address.', 'Gather the receipts or IDs it asks for.', 'Set a reminder for the deadline.'],
+        high: ['Give it ten minutes and get as far as you can.', 'Make the call or send the email it needs.', 'Scan or photograph everything and file it.'],
+      } },
+    };
+    const custom = (t) => ({
+      low: [`Get everything you need for “${t}” in one place. No doing yet.`, `Spend two minutes on the very first bit of “${t}”.`, `Write the next step for “${t}” so future-you knows where to start.`],
+      mid: [`Do the first five minutes of “${t}”. You can stop after.`, `Do the next smallest piece of “${t}”.`, `Tell someone you’re working on “${t}”.`],
+      high: [`Give “${t}” ten focused minutes. Phone face-down.`, `Tackle the hardest part of “${t}” while you’re warm.`, `Finish one complete chunk of “${t}”.`],
+    });
+    const MINUTES = { low: 2, mid: 5, high: 10 };
+    const KIND = [
+      'Small is the point. You can stop after this.',
+      'No catching up needed. Just this one thing.',
+      'Starting is the hard part, and you’re here.',
+      'Messy is fine. Done beats perfect.',
+    ];
+    const WINS = [
+      'You started. That’s the hardest part.',
+      'That counts. Seriously.',
+      'One step done. Momentum is on your side now.',
+      'Look at you, following through.',
+    ];
+    const CIRC = 276.46;
+
+    const views = { pick: $('[data-view="pick"]', app), step: $('[data-view="step"]', app), win: $('[data-view="win"]', app) };
+    const customIn = $('#oi-custom');
+    const taskChips = $('#oi-tasks');
+    const stepEl = $('#oi-step');
+    const timeEl = $('#oi-time');
+    const ring = $('#oi-ring');
+    const startBtn = $('#oi-start');
+    let task = 'emails', energy = 'low', idx = 0;
+    let total = 120, remaining = 120, endAt = 0, iv = 0;
+
+    const tasks = radioGroup(taskChips, (v) => { task = v; customIn.value = ''; taskChips.classList.remove('dim'); });
+    radioGroup($('#oi-energy'), (v) => { energy = v; });
+    customIn.addEventListener('input', () => taskChips.classList.toggle('dim', customIn.value.trim() !== ''));
+    customIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); begin(); } });
+
+    function show(name) {
+      const hadFocus = app.contains(document.activeElement);
+      Object.entries(views).forEach(([k, el]) => { el.hidden = k !== name; });
+      const v = views[name];
+      v.classList.remove('enter');
+      void v.offsetWidth;
+      v.classList.add('enter');
+      if (hadFocus) $('button:not([tabindex="-1"])', v).focus({ preventScroll: true });
+    }
+    const label = () => customIn.value.trim() || TASKS[task].label;
+    const steps = () => (customIn.value.trim() ? custom(customIn.value.trim())[energy] : TASKS[task].steps[energy]);
+    const fmt = (s) => { const c = Math.ceil(s); return `${Math.floor(c / 60)}:${String(c % 60).padStart(2, '0')}`; };
+
+    function renderTimer() {
+      timeEl.textContent = fmt(remaining);
+      ring.style.strokeDashoffset = String(CIRC * (1 - remaining / total));
+    }
+    function stopTimer() { clearInterval(iv); iv = 0; }
+    function toggleTimer() {
+      if (iv) {
+        stopTimer();
+        startBtn.textContent = 'Resume';
+        return;
+      }
+      endAt = performance.now() + remaining * 1000;
+      startBtn.textContent = 'Pause';
+      iv = setInterval(() => {
+        remaining = Math.max(0, (endAt - performance.now()) / 1000);
+        renderTimer();
+        if (remaining <= 0) { stopTimer(); win(); }
+      }, 250);
+    }
+    function showStep() {
+      const list = steps();
+      stopTimer();
+      $('#oi-task-name').textContent = label();
+      stepEl.textContent = list[idx % list.length];
+      total = remaining = MINUTES[energy] * 60;
+      renderTimer();
+      startBtn.textContent = `Start ${MINUTES[energy]} min`;
+      $('#oi-kind').textContent = pick(KIND);
+      show('step');
+    }
+    function begin() { idx = 0; showStep(); }
+    function win() {
+      stopTimer();
+      $('#oi-win-msg').textContent = pick(WINS);
+      show('win');
+    }
+
+    $('#oi-go').addEventListener('click', begin);
+    startBtn.addEventListener('click', toggleTimer);
+    $('#oi-done').addEventListener('click', win);
+    $('#oi-next').addEventListener('click', () => { idx += 1; showStep(); });
+    $('#oi-back').addEventListener('click', () => { stopTimer(); show('pick'); });
+    $('#oi-rest').addEventListener('click', () => {
+      customIn.value = '';
+      taskChips.classList.remove('dim');
+      tasks.select(tasks.items[0], false);
+      show('pick');
+      toast('Win logged. Rest is part of the plan.');
+    });
+  })();
+
+  /* ==========================================================================
+     Demo 3: Recoora live payment monitor (simulated Stripe events)
+     ========================================================================== */
+  (function recooraDemo() {
+    const box = $('[data-demo="recoora"]');
+    if (!box) return;
+    const CUSTOMERS = ['Northwind Studio', 'Lumen Labs', 'Paper Plane Co', 'Kettle & Crumb', 'Orbit Fitness',
+      'Bluebird Yoga', 'Pixel Pantry', 'Atlas Tutors', 'Fern & Fig', 'Quill Notes', 'Harbor Coffee', 'Tiny Desk Co'];
+    const PLANS = [19, 29, 49, 79, 129, 299];
+    const EVENTS = [
+      { type: 'charge.succeeded', w: 66, kind: 'ok' },
+      { type: 'invoice.payment_failed', w: 11, kind: 'bad' },
+      { type: 'customer.subscription.updated', w: 9, kind: 'warn' },
+      { type: 'charge.refunded', w: 6, kind: 'warn' },
+      { type: 'customer.subscription.deleted', w: 4, kind: 'bad' },
+      { type: 'charge.dispute.created', w: 4, kind: 'bad' },
+    ];
+    const ALERTS = {
+      'invoice.payment_failed': { title: 'Payment failed', level: 'bad',
+        idea: 'Send a friendly card-update link within the hour, then retry in 3 days. Keep their access on while it gets fixed.' },
+      'customer.subscription.deleted': { title: 'Subscription cancelled', level: 'bad',
+        idea: 'Ask one short question about why they left, and offer a pause instead of a goodbye.' },
+      'charge.dispute.created': { title: 'Dispute opened', level: 'bad',
+        idea: 'Reach out personally with the receipt and usage history before responding to the dispute.' },
+      downgrade: { title: 'Plan downgraded', level: 'warn',
+        idea: 'Show them the features they used most on the higher plan, then check in after a week.' },
+      refunds: { title: 'Refund pattern', level: 'warn',
+        idea: 'Second refund this session. Group refunds by reason: a repeat is a product fix, not a support ticket.' },
+    };
+    const feed = $('#rc-feed');
+    const alertList = $('#rc-alert-list');
+    const pauseBtn = $('#rc-pause');
+    const liveText = $('#rc-live-text');
+    const sr = $('#rc-sr');
+    const sparkPath = $('#rc-spark path');
+    const k = { vol: $('#rc-vol'), ok: $('#rc-ok'), fail: $('#rc-fail'), alerts: $('#rc-alerts') };
+    const state = { vol: 0, ok: 0, fail: 0, alerts: 0, refunds: 0, series: [0] };
+    let paused = false, visible = false, timer = 0;
+
+    const money = (n) => `$${n.toFixed(2)}`;
+    const clock = () => new Date().toLocaleTimeString('en-GB', { hour12: false });
+    const totalW = EVENTS.reduce((s, e) => s + e.w, 0);
+    function randomEvent() {
+      let r = Math.random() * totalW;
+      for (const e of EVENTS) { r -= e.w; if (r < 0) return e; }
+      return EVENTS[0];
+    }
+    function setKpi(el, value) {
+      if (el.textContent === value) return;
+      el.textContent = value;
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+    }
+    function renderKpis() {
+      setKpi(k.vol, `$${state.vol.toLocaleString('en-US')}`);
+      setKpi(k.ok, String(state.ok));
+      setKpi(k.fail, String(state.fail));
+      setKpi(k.alerts, String(state.alerts));
+      const s = state.series.slice(-24);
+      const max = Math.max(...s), min = Math.min(...s);
+      const W = 88, H = 26;
+      sparkPath.setAttribute('d', s.map((v, i) => {
+        const x = (i / Math.max(1, s.length - 1)) * W;
+        const y = H - 2 - ((v - min) / (max - min || 1)) * (H - 4);
+        return `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(''));
+    }
+    function addRow(type, who, amount, kind, note) {
+      const li = document.createElement('li');
+      li.className = `rc-ev ${kind}`;
+      const ev = document.createElement('span');
+      ev.className = 'ev';
+      const ty = document.createElement('span');
+      ty.className = 'type';
+      ty.textContent = type;
+      const wh = document.createElement('span');
+      wh.className = 'who';
+      wh.textContent = [who, note, clock()].filter(Boolean).join(' · ');
+      ev.append(ty, wh);
+      const amt = document.createElement('span');
+      amt.className = 'amt';
+      amt.textContent = (type === 'charge.refunded' ? '−' : '') + money(amount);
+      li.append(ev, amt);
+      feed.prepend(li);
+      while (feed.children.length > 10) feed.lastElementChild.remove();
+    }
+    function typeText(el, text) {
+      if (reduced()) { el.textContent = text; return; }
+      let i = 0;
+      el.classList.add('typing');
+      const iv = setInterval(() => {
+        i += 2;
+        el.textContent = text.slice(0, i);
+        if (i >= text.length) { clearInterval(iv); el.classList.remove('typing'); }
+      }, 16);
+    }
+    function addAlert(a, who, amount) {
+      state.alerts += 1;
+      const empty = $('.rc-empty', alertList);
+      if (empty) empty.remove();
+      const card = document.createElement('div');
+      card.className = `rc-alert ${a.level}`;
+      card.innerHTML = '<div class="rc-alert-head"><b></b><span></span></div><p class="rc-alert-meta"></p>'
+        + '<p class="rc-idea"><span class="spark-label">✦ Retention idea</span><span class="txt"></span></p>';
+      $('b', card).textContent = a.title;
+      $('.rc-alert-head span', card).textContent = money(amount);
+      $('.rc-alert-meta', card).textContent = `${who} · notified ${clock().slice(0, 5)}`;
+      alertList.prepend(card);
+      while (alertList.children.length > 3) alertList.lastElementChild.remove();
+      typeText($('.txt', card), a.idea);
+    }
+    function emit(forced) {
+      const def = forced ? EVENTS.find((e) => e.type === forced) : randomEvent();
+      const who = pick(CUSTOMERS);
+      const amount = pick(PLANS);
+      let kind = def.kind, note = '', alert = ALERTS[def.type] || null;
+      if (def.type === 'customer.subscription.updated') {
+        const down = Math.random() < 0.55;
+        note = down ? 'downgrade' : 'upgrade';
+        kind = down ? 'warn' : 'ok';
+        alert = down ? ALERTS.downgrade : null;
+      }
+      if (def.type === 'charge.refunded') {
+        state.refunds += 1;
+        alert = state.refunds % 2 === 0 ? ALERTS.refunds : null;
+      }
+      if (def.type === 'charge.succeeded') {
+        state.ok += 1;
+        state.vol += amount;
+        state.series.push(state.vol);
+      }
+      if (def.type === 'invoice.payment_failed') state.fail += 1;
+      addRow(def.type, who, amount, kind, note);
+      if (alert) addAlert(alert, who, amount);
+      renderKpis();
+      return alert;
+    }
+    function schedule() {
+      clearTimeout(timer);
+      if (paused || !visible || document.hidden) return;
+      timer = setTimeout(() => { emit(); schedule(); }, 1300 + Math.random() * 1600);
+    }
+
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; schedule(); }, { threshold: 0.15 }).observe(box);
+    document.addEventListener('visibilitychange', schedule);
+    pauseBtn.addEventListener('click', () => {
+      paused = !paused;
+      pauseBtn.setAttribute('aria-pressed', String(paused));
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      liveText.textContent = paused ? 'Paused' : 'Live · simulated';
+      box.classList.toggle('paused', paused);
+      schedule();
+    });
+    $$('[data-sim]', box).forEach((b) => b.addEventListener('click', () => {
+      const a = emit(b.dataset.sim);
+      sr.textContent = `${a.title}. Retention idea: ${a.idea}`;
+    }));
+
+    ['charge.succeeded', 'charge.succeeded', 'invoice.payment_failed', 'charge.succeeded', 'charge.succeeded']
+      .forEach((t) => emit(t));
+  })();
+
+  /* ==========================================================================
+     Skill graph
+     ========================================================================== */
+  (function skillGraph() {
+    const graph = $('.graph');
+    if (!graph) return;
+    const svg = $('.graph-lines', graph);
+    const chips = $$('.chip-btn', graph);
+    const nodes = $$('.node', graph);
+    const byId = Object.fromEntries(nodes.map((n) => [n.dataset.node, n]));
+    const mqWide = matchMedia('(min-width: 961px)');
+    let locked = null;
+
+    const linksOf = (chip) => chip.dataset.links.split(' ');
+    function clear() {
+      graph.classList.remove('active');
+      chips.concat(nodes).forEach((el) => el.classList.remove('on'));
+      svg.replaceChildren();
+    }
+    function line(from, to) {
+      if (!mqWide.matches) return;
+      const g = graph.getBoundingClientRect();
+      const a = from.getBoundingClientRect();
+      const b = to.getBoundingClientRect();
+      const x1 = a.right - g.left, y1 = a.top + a.height / 2 - g.top;
+      const x2 = b.left - g.left, y2 = b.top + b.height / 2 - g.top;
+      const dx = Math.max(40, (x2 - x1) * 0.5);
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
+      svg.append(p);
+      p.style.setProperty('--len', String(Math.ceil(p.getTotalLength())));
+    }
+    function activate(el) {
+      clear();
+      graph.classList.add('active');
+      el.classList.add('on');
+      if (el.classList.contains('chip-btn')) {
+        linksOf(el).forEach((id) => { const n = byId[id]; if (n) { n.classList.add('on'); line(el, n); } });
+      } else {
+        chips.filter((c) => linksOf(c).includes(el.dataset.node)).forEach((c) => { c.classList.add('on'); line(c, el); });
+      }
+    }
+    const restore = () => (locked ? activate(locked) : clear());
+
+    chips.concat(nodes).forEach((el) => {
+      el.setAttribute('aria-pressed', 'false');
+      el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') activate(el); });
+      el.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') restore(); });
+      el.addEventListener('focus', () => activate(el));
+      el.addEventListener('blur', restore);
+      el.addEventListener('click', () => {
+        locked = locked === el ? null : el;
+        chips.concat(nodes).forEach((x) => x.setAttribute('aria-pressed', String(x === locked)));
+        restore();
+      });
+    });
+    window.addEventListener('resize', () => { if (graph.classList.contains('active')) restore(); });
+  })();
+
+  /* ==========================================================================
+     Command palette
+     ========================================================================== */
+  (function commandPalette() {
+    const palette = $('#palette');
+    const panel = $('.palette-panel', palette);
+    const input = $('#palette-input');
+    const list = $('#palette-list');
+    const go = (sel) => () => {
+      const el = $(sel);
+      if (!el) return;
+      el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' });
+      history.replaceState(null, '', sel);
+    };
+    const openUrl = (url) => () => window.open(url, '_blank', 'noopener');
+    const COMMANDS = [
+      { group: 'Jump to', label: 'Work', hint: 'Three products, idea to launch', action: go('#work') },
+      { group: 'Jump to', label: 'LuvLit', hint: 'Websites for local businesses', action: go('#luvlit') },
+      { group: 'Jump to', label: 'OiDoit', hint: 'Execution companion', action: go('#oidoit') },
+      { group: 'Jump to', label: 'Recoora', hint: 'AI-powered Stripe alerts', keys: 'stripe payments', action: go('#recoora') },
+      { group: 'Jump to', label: 'Journey', hint: 'The changelog', keys: 'experience amazon kfc career', action: go('#journey') },
+      { group: 'Jump to', label: 'Approach', hint: 'How I build', keys: 'principles', action: go('#approach') },
+      { group: 'Jump to', label: 'Toolkit', hint: 'Skills mapped to proof', keys: 'skills', action: go('#toolkit') },
+      { group: 'Jump to', label: 'Contact', hint: 'Let’s talk', keys: 'hire email', action: go('#contact') },
+      { group: 'Actions', label: 'Copy email address', hint: EMAIL, action: copyEmail },
+      { group: 'Actions', label: 'Write an email', hint: 'Opens your mail app', action: () => { window.location.href = `mailto:${EMAIL}`; } },
+      { group: 'Actions', label: 'Switch theme', hint: 'Light / dark', keys: 'dark light mode', action: toggleTheme },
+      { group: 'Links', label: 'Visit luvlit.in', hint: 'Live product', action: openUrl('https://luvlit.in') },
+      { group: 'Links', label: 'GitHub', hint: 'bensonbennypayyappilly-a11y', action: openUrl('https://github.com/bensonbennypayyappilly-a11y') },
+    ];
+    let filtered = COMMANDS;
+    let sel = 0;
+    let lastFocus = null;
+
+    function score(q, c) {
+      if (!q) return 1;
+      const hay = `${c.label} ${c.hint || ''} ${c.keys || ''}`.toLowerCase();
+      if (c.label.toLowerCase().startsWith(q)) return 4;
+      if (hay.includes(q)) return 3;
+      let i = 0;
+      for (const ch of hay) { if (ch === q[i]) i += 1; if (i === q.length) return 1; }
+      return 0;
+    }
+    function render() {
+      const q = input.value.trim().toLowerCase();
+      filtered = COMMANDS.map((c) => ({ c, s: score(q, c) })).filter((x) => x.s > 0)
+        .sort((a, b) => (q ? b.s - a.s : 0)).map((x) => x.c);
+      sel = Math.min(sel, Math.max(0, filtered.length - 1));
+      list.replaceChildren();
+      if (!filtered.length) {
+        const li = document.createElement('li');
+        li.className = 'palette-empty';
+        li.setAttribute('role', 'presentation');
+        li.textContent = 'Nothing matches that. Try “work”, “email” or “theme”.';
+        list.append(li);
+        input.removeAttribute('aria-activedescendant');
+        return;
+      }
+      let group = null;
+      filtered.forEach((c, i) => {
+        if (!q && c.group !== group) {
+          group = c.group;
+          const g = document.createElement('li');
+          g.className = 'palette-group';
+          g.setAttribute('role', 'presentation');
+          g.textContent = group;
+          list.append(g);
+        }
+        const li = document.createElement('li');
+        li.className = 'palette-item';
+        li.id = `cmd-${i}`;
+        li.setAttribute('role', 'option');
+        const label = document.createElement('span');
+        label.className = 'pi-label';
+        label.textContent = c.label;
+        const hint = document.createElement('span');
+        hint.className = 'pi-hint';
+        hint.textContent = c.hint || '';
+        li.append(label, hint);
+        li.addEventListener('click', () => run(i));
+        li.addEventListener('pointermove', () => { if (sel !== i) { sel = i; mark(); } });
+        list.append(li);
+      });
+      mark();
+    }
+    function mark() {
+      $$('.palette-item', list).forEach((li, i) => li.setAttribute('aria-selected', String(i === sel)));
+      const cur = $(`#cmd-${sel}`, list);
+      if (cur) {
+        input.setAttribute('aria-activedescendant', cur.id);
+        cur.scrollIntoView({ block: 'nearest' });
+      }
+    }
+    function open() {
+      if (!palette.hidden) return;
+      lastFocus = document.activeElement;
+      palette.hidden = false;
+      root.classList.add('locked');
+      input.value = '';
+      sel = 0;
+      render();
+      requestAnimationFrame(() => (mqFine.matches ? input.focus() : panel.focus()));
+    }
+    function close() {
+      if (palette.hidden) return;
+      palette.hidden = true;
+      root.classList.remove('locked');
+      if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+    function run(i) {
+      const c = filtered[i];
+      if (!c) return;
+      close();
+      setTimeout(c.action, 20);
+    }
+
+    input.addEventListener('input', () => { sel = 0; render(); });
+    palette.addEventListener('keydown', (e) => {
+      const n = filtered.length;
+      if (e.key === 'ArrowDown') { e.preventDefault(); if (n) { sel = (sel + 1) % n; mark(); } }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); if (n) { sel = (sel - 1 + n) % n; mark(); } }
+      else if (e.key === 'Enter') { e.preventDefault(); run(sel); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+      else if (e.key === 'Tab') { e.preventDefault(); input.focus(); }
+    });
+    palette.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) close(); });
+    $$('[data-open-palette]').forEach((b) => b.addEventListener('click', open));
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (palette.hidden) open(); else close();
+      } else if (e.key === '/' && palette.hidden && !e.target.closest('input, textarea, [contenteditable="true"]')) {
+        e.preventDefault();
+        open();
+      }
+    });
+  })();
+})();
