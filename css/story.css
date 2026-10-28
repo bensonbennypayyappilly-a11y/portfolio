@@ -1,5 +1,5 @@
 /* ==========================================================================
-   The story: one line, drawn chapter by chapter as you scroll
+   The story: one continuous line, drawn like a film as you scroll
    ========================================================================== */
 [data-theme="dark"] .story, [data-theme="dark"] .contact {
   --line-ink: #ece6db; --line-ink-2: rgba(236, 230, 219, .72); --line-cap: #c8a97a;
@@ -11,11 +11,11 @@
 }
 
 .story { position: relative; color: var(--line-ink); }
-.js .story { height: calc(var(--chapters, 7) * 150vh); height: calc(var(--chapters, 7) * 150svh); }
-.stage { --stage-bg: var(--sc0); position: relative; background: var(--stage-bg); transition: background-color 1s var(--ease-in-out); }
+.js .story { height: calc((var(--chapters, 7) - 1) * 130vh + 100vh); height: calc((var(--chapters, 7) - 1) * 130svh + 100svh); }
+.stage { --stage-bg: var(--sc0); position: relative; background-color: var(--stage-bg); }
 .js .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 
-/* The line and everything it draws */
+/* The world the camera glides across */
 .story-svg { display: none; }
 .js .story-svg {
   display: block; position: absolute; left: 0; right: 0; bottom: 64px; width: 100%;
@@ -23,34 +23,55 @@
 }
 .ink { fill: none; stroke: var(--line-ink, var(--text)); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .fill { fill: var(--line-ink, var(--text)); stroke: none; }
-.occlude { fill: var(--stage-bg, var(--bg)); transition: fill 1s var(--ease-in-out); }
+.occlude { fill: var(--stage-bg, var(--bg)); }
 .contact .occlude { fill: var(--bg); }
 .bulb { transition: fill .4s; }
 [data-theme="light"] .bulb { fill: #f1d39a; }
-.baseline { stroke-dasharray: 8000; stroke-dashoffset: 8000; animation: lineIn 1.8s var(--ease-in-out) .2s forwards; }
-@keyframes lineIn { to { stroke-dashoffset: 0; } }
-.scene { opacity: 0; transition: opacity .7s var(--ease-out); }
-.scene.is-on { opacity: 1; }
+.pen { fill: var(--line-cap); }
+.pen-halo { fill: var(--line-cap); opacity: .18; transform-box: fill-box; transform-origin: center; animation: halo 1.6s ease-in-out infinite; }
+@keyframes halo { 50% { transform: scale(1.5); opacity: .06; } }
 
-/* The little me */
-.me { transition: transform 1.1s var(--ease-in-out); }
-.story .me .ink { stroke-dasharray: 1; stroke-dashoffset: 1; animation: lineIn 1.4s var(--ease-in-out) 1s forwards; }
-.story .me .fill { opacity: 0; animation: fadeIn .6s ease 2s forwards; }
+/* Things in the drawings keep moving on their own */
+.spin, .float, .sway, .flag { transform-box: fill-box; }
+.spin { transform-origin: center; animation: spin 50s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.float { animation: float 5s ease-in-out infinite alternate; }
+@keyframes float { from { transform: translateY(5px); } to { transform: translateY(-7px); } }
+.sway { transform-origin: 50% 0; animation: sway 4.5s ease-in-out infinite alternate; }
+@keyframes sway { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+.flicker { animation: flicker 2.8s ease-in-out infinite; }
+@keyframes flicker { 50% { opacity: .3; } }
+.drift { animation: drift 16s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translateX(52px); } }
+.flag { transform-origin: 0 50%; animation: flag 1.4s ease-in-out infinite alternate; }
+@keyframes flag { from { transform: skewY(-7deg) scaleX(.92); } to { transform: skewY(6deg); } }
+
+/* The little me: draws in, then walks with the camera */
+.me { will-change: transform; }
+.story .me-flip { opacity: 0; animation: fadeIn .9s ease 1.5s forwards; }
 @keyframes fadeIn { to { opacity: 1; } }
-.me .arms { opacity: 0; transition: opacity .35s; }
+.me .arms { opacity: 0; transition: opacity .3s; }
 .me .arms.on { opacity: 1; }
 .me-flip, .me-bob { transform-box: fill-box; transform-origin: 50% 100%; }
-.me.walking.face-left .me-flip { transform: scaleX(-1); }
-.me.walking .me-bob { animation: bob .36s ease-in-out infinite; }
-@keyframes bob { 50% { transform: translateY(-5px) rotate(1.5deg); } }
+.me.face-left .me-flip { transform: scaleX(-1); }
+.leg, .arm { transform-box: fill-box; transform-origin: 50% 0; }
+.me.walking .me-bob { animation: bob .27s ease-in-out infinite alternate; }
+.me.walking .leg-l, .me.walking .arm-r { animation: stride .54s ease-in-out infinite alternate; }
+.me.walking .leg-r, .me.walking .arm-l { animation: stride .54s ease-in-out infinite alternate-reverse; }
+@keyframes stride { from { transform: rotate(17deg); } to { transform: rotate(-17deg); } }
+@keyframes bob { to { transform: translateY(-4px); } }
 
-/* Chapters */
+/* Chapters: text drifts with the scroll, nearer lines moving a little faster */
 .chapter { padding: calc(var(--nav-h) + 40px) var(--gutter) 40px; max-width: calc(var(--container) + var(--gutter) * 2); margin: 0 auto; }
 .js .chapter {
   position: absolute; inset: 0 0 auto; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
-  gap: 22px clamp(32px, 6vw, 96px); align-content: start; padding-top: calc(var(--nav-h) + 6vh); pointer-events: none;
+  gap: 22px clamp(32px, 6vw, 96px); align-content: start; padding-top: calc(var(--nav-h) + 6vh);
+  pointer-events: none; opacity: 0; will-change: opacity;
 }
 .js .chapter.is-active { pointer-events: auto; }
+.js .chapter > * { transform: translate3d(0, calc(var(--d, 0) * -56px), 0); }
+.js .chapter > :nth-child(2) { transform: translate3d(0, calc(var(--d, 0) * -78px), 0); }
+.js .chapter > :nth-child(3) { transform: translate3d(0, calc(var(--d, 0) * -104px), 0); }
 .ch-caption {
   grid-column: 1 / -1; margin-bottom: 4px;
   font: 500 11.5px/1.4 var(--font-label); text-transform: uppercase; letter-spacing: .24em; color: var(--line-cap);
@@ -67,14 +88,6 @@
   font-size: 14.5px; text-decoration: none; color: var(--line-ink);
 }
 .ch-links svg { width: 14px; height: 14px; }
-
-/* Chapter text enters from below and leaves upwards */
-.js .chapter > * { opacity: 0; transform: translateY(26px); transition: opacity .55s var(--ease-out), transform .8s var(--ease-out); }
-.js .chapter.is-past > * { transform: translateY(-26px); }
-.js .chapter.is-active > * { opacity: 1; transform: none; }
-.js .chapter.is-active > :nth-child(1) { transition-delay: .15s; }
-.js .chapter.is-active > :nth-child(2) { transition-delay: .25s; }
-.js .chapter.is-active > :nth-child(3) { transition-delay: .4s; }
 
 /* Chapter bar */
 .story-bar { display: none; }
@@ -112,7 +125,7 @@
 @media (max-width: 860px) {
   .js .chapter { grid-template-columns: minmax(0, 1fr); gap: 14px; padding-top: calc(var(--nav-h) + 52px); }
   .ch-body { padding-top: 0; }
-  .js .story-svg { height: 34vh; bottom: 58px; }
+  .js .story-svg { height: 40vh; bottom: 58px; }
   .js .story-bar { grid-template-columns: 1fr auto; }
   .keep-going { display: none; }
   .contact-grid { grid-template-columns: minmax(0, 1fr); }
@@ -125,6 +138,8 @@
   .tick[aria-current="step"] { margin-right: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .baseline, .story .me .ink, .contact-svg .ink { stroke-dashoffset: 0; }
-  .story .me .fill, .contact-svg .fill { opacity: 1; }
+  .story .me-flip { opacity: 1; animation: none; }
+  .contact-svg .ink { stroke-dashoffset: 0; }
+  .contact-svg .fill { opacity: 1; }
+  .pen, .pen-halo { display: none; }
 }
