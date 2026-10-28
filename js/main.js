@@ -48,18 +48,125 @@
   }
   $$('[data-copy-email]').forEach((b) => b.addEventListener('click', copyEmail));
 
-  /* ---------- Theme ---------- */
+  /* ---------- Theme (dark first) ---------- */
   const metaTheme = $('meta[name="theme-color"]');
+  const lamp = $('#lamp');
   function applyTheme(theme, persist) {
     root.dataset.theme = theme;
     if (persist) { try { localStorage.setItem('theme', theme); } catch { /* storage unavailable */ } }
-    metaTheme.setAttribute('content', theme === 'dark' ? '#0b0b0c' : '#f6f3ee');
-    $$('[data-theme-toggle]').forEach((b) => b.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'));
+    metaTheme.setAttribute('content', theme === 'dark' ? '#070708' : '#f6f3ee');
+    if (lamp) {
+      lamp.setAttribute('aria-pressed', String(theme === 'light'));
+      lamp.setAttribute('aria-label', theme === 'dark' ? 'Pull the lamp to switch on the light theme' : 'Pull the lamp to switch back to the dark theme');
+    }
     window.dispatchEvent(new Event('themechange'));
   }
-  function toggleTheme() { applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true); }
+  // Light spreads out from the lamp when the browser supports view transitions.
+  function toggleTheme() {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    if (!document.startViewTransition || reduced() || !lamp) { applyTheme(next, true); return; }
+    const r = lamp.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height * 0.5;
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const vt = document.startViewTransition(() => applyTheme(next, true));
+    vt.ready.then(() => {
+      root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 800, easing: 'cubic-bezier(.65, 0, .35, 1)', pseudoElement: '::view-transition-new(root)' });
+    }).catch(() => {});
+  }
   applyTheme(root.dataset.theme || 'dark', false);
-  $$('[data-theme-toggle]').forEach((b) => b.addEventListener('click', toggleTheme));
+  let pullLamp = toggleTheme;
+
+  /* A tiny mechanical "click" for the pull switch */
+  let audioCtx;
+  function clickSound() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const len = Math.floor(audioCtx.sampleRate * 0.03);
+      const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 5);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      const band = audioCtx.createBiquadFilter();
+      band.type = 'bandpass';
+      band.frequency.value = 2600;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.3;
+      src.connect(band).connect(gain).connect(audioCtx.destination);
+      src.start();
+    } catch { /* audio unavailable */ }
+  }
+
+  /* ---------- The pull-cord lamp ---------- */
+  (function lampSwitch() {
+    if (!lamp) return;
+    const chain = $('.lamp-chain', lamp);
+    const bead = $('.lamp-bead', lamp);
+    const base = { y2: Number(chain.getAttribute('y2')), cy: Number(bead.getAttribute('cy')) };
+    const MAX = 26, TRIGGER = 12;
+    let startY = null, pull = 0, dragged = false, springRaf = 0;
+    const setPull = (p) => {
+      pull = p;
+      chain.setAttribute('y2', (base.y2 + p).toFixed(2));
+      bead.setAttribute('cy', (base.cy + p).toFixed(2));
+    };
+    function springBack() {
+      const from = pull, t0 = performance.now();
+      cancelAnimationFrame(springRaf);
+      const step = (now) => {
+        const t = (now - t0) / 1000;
+        if (t > 0.9 || reduced()) { setPull(0); return; }
+        setPull(from * Math.exp(-6 * t) * Math.cos(16 * t));
+        springRaf = requestAnimationFrame(step);
+      };
+      springRaf = requestAnimationFrame(step);
+    }
+    function fire() {
+      clickSound();
+      lamp.classList.remove('swing');
+      void lamp.offsetWidth;
+      lamp.classList.add('swing', 'pulled');
+      try { localStorage.setItem('lampPulled', '1'); } catch { /* storage unavailable */ }
+      toggleTheme();
+    }
+    pullLamp = () => {
+      if (reduced()) { fire(); return; }
+      const t0 = performance.now();
+      const down = (now) => {
+        const k = Math.min(1, (now - t0) / 140);
+        setPull(MAX * 0.8 * k);
+        if (k < 1) requestAnimationFrame(down);
+        else { fire(); springBack(); }
+      };
+      requestAnimationFrame(down);
+    };
+    lamp.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      startY = e.clientY;
+      dragged = false;
+      cancelAnimationFrame(springRaf);
+      lamp.setPointerCapture(e.pointerId);
+    });
+    lamp.addEventListener('pointermove', (e) => {
+      if (startY === null) return;
+      const dy = Math.max(0, Math.min(MAX, (e.clientY - startY) * 0.7));
+      if (dy > 2) dragged = true;
+      setPull(dy);
+    });
+    lamp.addEventListener('pointerup', () => {
+      if (startY === null) return;
+      startY = null;
+      if (dragged) { if (pull >= TRIGGER) fire(); springBack(); }
+    });
+    lamp.addEventListener('pointercancel', () => { startY = null; springBack(); });
+    // Keyboard, plain clicks and taps pull the cord for you.
+    lamp.addEventListener('click', () => {
+      if (dragged) { dragged = false; return; }
+      pullLamp();
+    });
+    try { if (localStorage.getItem('lampPulled')) lamp.classList.add('pulled'); } catch { /* storage unavailable */ }
+  })();
 
   /* ---------- Small details ---------- */
   $$('.kbd-hint').forEach((k) => { k.textContent = isMac ? '⌘K' : 'Ctrl K'; });
@@ -783,8 +890,9 @@
       { group: 'Jump to', label: 'Contact', hint: 'Let’s talk', keys: 'hire email', action: go('#contact') },
       { group: 'Actions', label: 'Copy email address', hint: EMAIL, action: copyEmail },
       { group: 'Actions', label: 'Write an email', hint: 'Opens your mail app', action: () => { window.location.href = `mailto:${EMAIL}`; } },
-      { group: 'Actions', label: 'Switch theme', hint: 'Light / dark', keys: 'dark light mode', action: toggleTheme },
+      { group: 'Actions', label: 'Pull the lamp', hint: 'Switch light / dark', keys: 'theme dark light mode', action: () => pullLamp() },
       { group: 'Links', label: 'Visit luvlit.in', hint: 'Live product', action: openUrl('https://luvlit.in') },
+      { group: 'Links', label: 'Visit recoora.vercel.app', hint: 'Still live', keys: 'stripe', action: openUrl('https://recoora.vercel.app') },
       { group: 'Links', label: 'GitHub', hint: 'bensonbennypayyappilly-a11y', action: openUrl('https://github.com/bensonbennypayyappilly-a11y') },
     ];
     let filtered = COMMANDS;
@@ -894,4 +1002,254 @@
       }
     });
   })();
+
+  /* ==========================================================================
+     Letters that get bolder near the cursor (hero name + footer signature)
+     ========================================================================== */
+  function setLetter(s, f) {
+    const base = Number(s.dataset.base);
+    s.style.fontVariationSettings = `"wght" ${Math.round(base + (900 - base) * f)}, "SOFT" 100, "WONK" ${s.dataset.wonk}`;
+    s.style.setProperty('--f', f.toFixed(3));
+  }
+  function splitLetters(el) {
+    const base = el.dataset.letters;
+    const wonk = el.tagName === 'EM' ? 1 : 0;
+    const text = el.textContent;
+    el.textContent = '';
+    return Array.from(text).map((ch) => {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.textContent = ch;
+      s.dataset.base = base;
+      s.dataset.wonk = wonk;
+      el.append(s);
+      setLetter(s, 0);
+      return s;
+    });
+  }
+  function letterField(zone, letters, radius) {
+    let px = 0, py = 0, raf = 0;
+    const paint = () => {
+      raf = 0;
+      letters.forEach((s) => {
+        const r = s.getBoundingClientRect();
+        const f = Math.max(0, 1 - Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2)) / radius);
+        setLetter(s, f * f * (3 - 2 * f));
+      });
+    };
+    zone.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || reduced()) return;
+      px = e.clientX;
+      py = e.clientY;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    zone.addEventListener('pointerleave', () => letters.forEach((s) => setLetter(s, 0)));
+  }
+  function letterWave(letters) {
+    if (reduced()) return;
+    letters.forEach((s, i) => setTimeout(() => {
+      setLetter(s, 1);
+      setTimeout(() => setLetter(s, 0), 420);
+    }, i * 75));
+  }
+  const heroLetters = $$('.hero-name [data-letters]').flatMap(splitLetters);
+  const footLetters = $$('.footer-name [data-letters]').flatMap(splitLetters);
+  if (heroLetters.length) {
+    letterField($('.hero'), heroLetters, 260);
+    setTimeout(() => letterWave(heroLetters), 1100);
+  }
+  if (footLetters.length) {
+    letterField($('.footer'), footLetters, 300);
+    const footObs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      letterWave(footLetters);
+      footObs.disconnect();
+    }, { threshold: 0.6 });
+    footObs.observe($('.footer-name'));
+  }
+
+  /* ==========================================================================
+     Section titles: word-by-word reveal and a hand-drawn underline
+     ========================================================================== */
+  (function titles() {
+    const SCRIBBLE = 'M2 13 C 30 4, 60 17, 95 9 S 160 4, 198 11';
+    $$('.section-title, .contact-title').forEach((title) => {
+      let i = 0;
+      const wrap = (node) => {
+        Array.from(node.childNodes).forEach((child) => {
+          if (child.nodeType === Node.TEXT_NODE) {
+            const frag = document.createDocumentFragment();
+            child.textContent.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.append(' '); return; }
+              const w = document.createElement('span');
+              w.className = 'w';
+              w.style.setProperty('--i', i++);
+              w.textContent = part;
+              frag.append(w);
+            });
+            child.replaceWith(frag);
+          } else if (child.nodeType === Node.ELEMENT_NODE) {
+            wrap(child);
+          }
+        });
+      };
+      wrap(title);
+      $$('em', title).forEach((em) => em.insertAdjacentHTML('beforeend',
+        `<svg class="scribble" viewBox="0 0 200 18" preserveAspectRatio="none" aria-hidden="true"><path d="${SCRIBBLE}" pathLength="1"/></svg>`));
+      title.classList.add('split');
+      revealObs.observe(title);
+    });
+  })();
+
+  /* ==========================================================================
+     Draggable stickers with a little momentum
+     ========================================================================== */
+  (function stickers() {
+    const hero = $('.hero');
+    let topZ = 5;
+    $$('.sticker').forEach((el) => {
+      const rot = parseFloat(el.style.getPropertyValue('--r')) || 0;
+      let x = 0, y = 0, vx = 0, vy = 0, offX = 0, offY = 0, lastX = 0, lastY = 0, lastT = 0, raf = 0, dragging = false;
+      const apply = (tilt = 0) => { el.style.transform = `translate(${x}px, ${y}px) rotate(${rot + tilt}deg)`; };
+      const keepInside = () => {
+        const h = hero.getBoundingClientRect(), r = el.getBoundingClientRect();
+        if (r.left < h.left + 4) { x += h.left + 4 - r.left; vx = Math.abs(vx) * 0.5; }
+        if (r.right > h.right - 4) { x -= r.right - h.right + 4; vx = -Math.abs(vx) * 0.5; }
+        if (r.top < h.top + 72) { y += h.top + 72 - r.top; vy = Math.abs(vy) * 0.5; }
+        if (r.bottom > h.bottom - 4) { y -= r.bottom - h.bottom + 4; vy = -Math.abs(vy) * 0.5; }
+      };
+      el.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        cancelAnimationFrame(raf);
+        dragging = true;
+        el.setPointerCapture(e.pointerId);
+        el.classList.add('dragging');
+        el.style.zIndex = String(++topZ);
+        offX = e.clientX - x;
+        offY = e.clientY - y;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        lastT = performance.now();
+        vx = vy = 0;
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const now = performance.now(), dt = Math.max(1, now - lastT);
+        vx = ((e.clientX - lastX) / dt) * 16;
+        vy = ((e.clientY - lastY) / dt) * 16;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        lastT = now;
+        x = e.clientX - offX;
+        y = e.clientY - offY;
+        apply(Math.max(-14, Math.min(14, vx * 1.4)));
+      });
+      const drop = () => {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('dragging');
+        if (reduced()) { keepInside(); apply(); return; }
+        const glide = () => {
+          vx *= 0.92;
+          vy *= 0.92;
+          x += vx;
+          y += vy;
+          keepInside();
+          apply(Math.max(-14, Math.min(14, vx * 1.4)));
+          if (Math.abs(vx) + Math.abs(vy) > 0.3) raf = requestAnimationFrame(glide);
+          else apply();
+        };
+        raf = requestAnimationFrame(glide);
+      };
+      el.addEventListener('pointerup', drop);
+      el.addEventListener('pointercancel', drop);
+    });
+  })();
+
+  /* ==========================================================================
+     Marquee that follows your scroll speed and direction
+     ========================================================================== */
+  (function marquee() {
+    const track = $('.marquee-track');
+    if (!track) return;
+    let x = 0, dir = -1, boost = 0, lastY = window.scrollY, half = 0, raf = 0, visible = false;
+    const measure = () => { half = track.scrollWidth / 2; };
+    const step = () => {
+      const dy = window.scrollY - lastY;
+      lastY = window.scrollY;
+      if (dy) dir = dy > 0 ? -1 : 1;
+      boost += (Math.min(60, Math.abs(dy)) - boost) * 0.1;
+      x += dir * (0.5 + boost * 0.3);
+      if (x <= -half) x += half;
+      if (x > 0) x -= half;
+      track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0) skewX(${(dir * boost * 0.25).toFixed(2)}deg)`;
+      raf = visible ? requestAnimationFrame(step) : 0;
+    };
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting && !reduced();
+      if (visible && !raf) { lastY = window.scrollY; raf = requestAnimationFrame(step); }
+    }).observe(track.parentElement);
+    measure();
+    if (document.fonts) document.fonts.ready.then(measure);
+    window.addEventListener('resize', measure);
+  })();
+
+  /* ==========================================================================
+     Desktop extras: custom cursor and card tilt
+     ========================================================================== */
+  if (mqFine.matches && !reduced()) {
+    const ring = document.createElement('div');
+    ring.className = 'cursor hidden';
+    ring.setAttribute('aria-hidden', 'true');
+    ring.innerHTML = '<span></span>';
+    const dot = document.createElement('div');
+    dot.className = 'cursor-dot hidden';
+    dot.setAttribute('aria-hidden', 'true');
+    document.body.append(ring, dot);
+    root.classList.add('has-cursor');
+    const label = $('span', ring);
+    let mx = -100, my = -100, rx = -100, ry = -100, raf = 0;
+    const follow = () => {
+      rx += (mx - rx) * 0.2;
+      ry += (my - ry) * 0.2;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      raf = Math.abs(mx - rx) + Math.abs(my - ry) > 0.2 ? requestAnimationFrame(follow) : 0;
+    };
+    document.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      mx = e.clientX;
+      my = e.clientY;
+      dot.style.transform = `translate(${mx}px, ${my}px)`;
+      ring.classList.remove('hidden');
+      dot.classList.remove('hidden');
+      if (!raf) raf = requestAnimationFrame(follow);
+      const labelled = e.target.closest('[data-cursor]');
+      const text = !labelled && e.target.closest('input[type="text"]');
+      const link = !labelled && !text && e.target.closest('a, button, [role="radio"], label');
+      ring.classList.toggle('is-label', !!labelled);
+      ring.classList.toggle('is-link', !!link);
+      ring.classList.toggle('is-text', !!text);
+      dot.classList.toggle('is-text', !!text);
+      if (labelled) label.textContent = labelled.dataset.cursor;
+    });
+    document.addEventListener('pointerdown', () => ring.classList.add('is-down'));
+    document.addEventListener('pointerup', () => ring.classList.remove('is-down'));
+    root.addEventListener('mouseleave', () => { ring.classList.add('hidden'); dot.classList.add('hidden'); });
+
+    $$('.principle, .tl-card').forEach((el) => {
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        const k = Math.min(1, 380 / r.width);
+        el.style.transition = 'transform .15s ease-out';
+        el.style.transform = `perspective(900px) rotateX(${(-py * 6 * k).toFixed(2)}deg) rotateY(${(px * 8 * k).toFixed(2)}deg) translateY(-3px)`;
+      });
+      el.addEventListener('pointerleave', () => {
+        el.style.transition = 'transform .6s cubic-bezier(.16, 1, .3, 1)';
+        el.style.transform = '';
+      });
+    });
+  }
 })();
