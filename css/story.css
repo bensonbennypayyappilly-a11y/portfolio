@@ -1,11 +1,11 @@
 /* ==========================================================================
    The story: one continuous line, drawn like a film as you scroll
    ========================================================================== */
-[data-theme="dark"] .story, [data-theme="dark"] .contact {
+[data-theme="dark"] {
   --line-ink: #ece6db; --line-ink-2: rgba(236, 230, 219, .72); --line-cap: #c8a97a;
   --sc0: #0a0908; --sc1: #1e2631; --sc2: #301f20; --sc3: #1b2a24; --sc4: #26212e; --sc5: #2f241d; --sc6: #212c23;
 }
-[data-theme="light"] .story, [data-theme="light"] .contact {
+[data-theme="light"] {
   --line-ink: #1b1815; --line-ink-2: rgba(27, 24, 21, .7); --line-cap: #8a6a3d;
   --sc0: #f4efe7; --sc1: #e2e6ea; --sc2: #eedfd9; --sc3: #dfe8e1; --sc4: #e6e1eb; --sc5: #efe3d4; --sc6: #e3e9dd;
 }
@@ -95,7 +95,8 @@
   position: absolute; left: var(--gutter); right: var(--gutter); bottom: 20px; z-index: 2;
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; font-size: 13px; color: var(--line-ink);
 }
-.ch-now { display: flex; align-items: baseline; gap: 12px; }
+.bar-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.ch-now { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
 .ch-num { font-family: var(--font-code); font-size: 11.5px; color: var(--line-ink-2); }
 .keep-going { display: inline-flex; align-items: center; gap: 8px; padding: 6px 4px; border: 0; background: none; color: var(--line-ink); font-size: 13px; }
 .keep-going svg { width: 14px; height: 14px; animation: nudge 1.8s var(--ease-in-out) infinite; }

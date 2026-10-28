@@ -190,7 +190,7 @@ kbd {
   transition: background-color .3s, border-color .3s, backdrop-filter .3s;
 }
 .nav.scrolled {
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  background: color-mix(in oklab, var(--bg) 52%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
   backdrop-filter: blur(14px) saturate(150%);
   border-bottom-color: var(--line);

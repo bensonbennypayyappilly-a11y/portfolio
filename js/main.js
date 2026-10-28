@@ -737,6 +737,7 @@
       { group: 'Jump to', label: 'Contact', hint: 'Let’s talk', keys: 'hire email', action: go('#contact') },
       { group: 'Actions', label: 'Copy email address', hint: EMAIL, action: copyEmail },
       { group: 'Actions', label: 'Write an email', hint: 'Opens your mail app', action: () => { window.location.href = `mailto:${EMAIL}`; } },
+      { group: 'Actions', label: 'Play or pause the music', hint: 'An ambient score for the story', keys: 'sound audio song', action: () => window.dispatchEvent(new Event('togglemusic')) },
       { group: 'Actions', label: 'Pull the lamp', hint: 'Switch light / dark', keys: 'theme dark light mode', action: () => pullLamp() },
       { group: 'Links', label: 'Visit luvlit.in', hint: 'Live product', action: openUrl('https://luvlit.in') },
       { group: 'Links', label: 'Visit recoora.vercel.app', hint: 'Still live', keys: 'stripe', action: openUrl('https://recoora.vercel.app') },
@@ -968,6 +969,19 @@
       ring.style.transform = `translate(${rx}px, ${ry}px)`;
       raf = Math.abs(mx - rx) + Math.abs(my - ry) > 0.2 ? requestAnimationFrame(follow) : 0;
     };
+    function aimAt(target) {
+      if (!target || !target.closest) return;
+      const labelled = target.closest('[data-cursor]');
+      const text = !labelled && target.closest('input[type="text"]');
+      const link = !labelled && !text && target.closest('a, button, [role="radio"], label');
+      ring.classList.toggle('is-label', !!labelled);
+      ring.classList.toggle('is-link', !!link);
+      ring.classList.toggle('is-text', !!text);
+      dot.classList.toggle('is-text', !!text);
+      if (labelled) label.textContent = labelled.dataset.cursor;
+    }
+    // Scrolling moves the page under a still mouse, so re-check what it points at.
+    window.addEventListener('scroll', () => { if (mx >= 0) aimAt(document.elementFromPoint(mx, my)); }, { passive: true });
     document.addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;
       mx = e.clientX;
@@ -976,14 +990,7 @@
       ring.classList.remove('hidden');
       dot.classList.remove('hidden');
       if (!raf) raf = requestAnimationFrame(follow);
-      const labelled = e.target.closest('[data-cursor]');
-      const text = !labelled && e.target.closest('input[type="text"]');
-      const link = !labelled && !text && e.target.closest('a, button, [role="radio"], label');
-      ring.classList.toggle('is-label', !!labelled);
-      ring.classList.toggle('is-link', !!link);
-      ring.classList.toggle('is-text', !!text);
-      dot.classList.toggle('is-text', !!text);
-      if (labelled) label.textContent = labelled.dataset.cursor;
+      aimAt(e.target);
     });
     document.addEventListener('pointerdown', () => ring.classList.add('is-down'));
     document.addEventListener('pointerup', () => ring.classList.remove('is-down'));

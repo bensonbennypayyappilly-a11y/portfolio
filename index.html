@@ -27,8 +27,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Jost:wght@300..600&family=Mrs+Saint+Delafield&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/story.css">
+  <link rel="stylesheet" href="css/sketch.css">
   <script src="js/main.js" defer></script>
   <script src="js/story.js" defer></script>
+  <script src="js/music.js" defer></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -164,7 +166,13 @@
         </article>
 
         <div class="story-bar">
-          <p class="ch-now"><span class="ch-num">00</span><span class="ch-name">The beginning</span></p>
+          <div class="bar-left">
+            <p class="ch-now"><span class="ch-num">00</span><span class="ch-name">The beginning</span></p>
+            <button class="music-btn" type="button" aria-pressed="false" aria-label="Play music" data-cursor="music">
+              <svg class="music-wave" viewBox="0 0 30 12" aria-hidden="true"><path d="M1 6 C4 1 7 1 8.5 6 S13 11 16 6 S21 1 22.5 6 S27 11 29 6"/></svg>
+              <span class="music-label">Play music</span>
+            </button>
+          </div>
           <button class="keep-going" type="button"><span>Keep going</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
           <div class="ticks" role="group" aria-label="Jump to a chapter">
           <button class="tick" type="button" aria-label="Chapter 00: The beginning"></button>
@@ -191,7 +199,7 @@
         </header>
 
         <!-- LuvLit -->
-        <article class="project spot reveal" id="luvlit" style="--p: var(--c-luvlit)" aria-labelledby="luvlit-title">
+        <article class="project reveal" id="luvlit" style="--p: var(--c-luvlit)" aria-labelledby="luvlit-title">
           <span class="project-num label" aria-hidden="true">01 / 03</span>
           <div class="project-info">
             <div class="project-meta">
@@ -275,7 +283,7 @@
         </article>
 
         <!-- OiDoit -->
-        <article class="project flip spot reveal" id="oidoit" style="--p: var(--c-oidoit)" aria-labelledby="oidoit-title">
+        <article class="project flip reveal" id="oidoit" style="--p: var(--c-oidoit)" aria-labelledby="oidoit-title">
           <span class="project-num label" aria-hidden="true">02 / 03</span>
           <div class="project-info">
             <div class="project-meta">
@@ -358,7 +366,7 @@
         </article>
 
         <!-- Recoora -->
-        <article class="project spot reveal" id="recoora" style="--p: var(--c-recoora)" aria-labelledby="recoora-title">
+        <article class="project reveal" id="recoora" style="--p: var(--c-recoora)" aria-labelledby="recoora-title">
           <span class="project-num label" aria-hidden="true">03 / 03</span>
           <div class="project-info">
             <div class="project-meta">

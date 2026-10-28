@@ -89,6 +89,7 @@
     name.textContent = chapters[i].dataset.name;
     ticks.forEach((t, k) => t.setAttribute('aria-current', k === i ? 'step' : 'false'));
     keepLabel.textContent = i === N - 1 ? 'See the work' : 'Keep going';
+    window.dispatchEvent(new CustomEvent('storychapter', { detail: i }));
     chapters.forEach((c, k) => $$('a', c).forEach((a) => { a.tabIndex = k === i ? 0 : -1; }));
   }
 
