@@ -6,7 +6,7 @@ A dependency-free static site (HTML, CSS, vanilla JS). No build step, so it depl
 
 ## What's inside
 
-- **Reactive hero:** a dot field that follows the cursor, a handwritten hello, name letters that get bolder as the cursor comes near, and paper stickers you can drag and throw around.
+- **Reactive hero:** a dot field that follows the cursor, a handwritten hello, name letters that get bolder as the cursor comes near, and ivory hang tags you can drag and throw around.
 - **Pull-cord lamp theme switch:** drag the chain down (or click it) to switch on the light. The new theme spreads out from the lamp. Dark is the default.
 - **Three interactive product demos:**
   - **LuvLit:** a mini website builder. Type a business name, pick a type and colour, and the preview updates live.
@@ -16,7 +16,7 @@ A dependency-free static site (HTML, CSS, vanilla JS). No build step, so it depl
 - **Skill graph:** hover or tap a skill to see where it was used (lines connect skills to roles on desktop).
 - **Command palette:** press `⌘K` / `Ctrl K` (or `/`) to jump anywhere, copy the email or switch theme.
 - A custom cursor on desktop, a marquee that follows your scroll speed, word-by-word title reveals with hand-drawn underlines, tilting cards, and a footer signature that reacts to the cursor.
-- Type: Fraunces (display), Bricolage Grotesque (text), Caveat (handwritten notes), IBM Plex Mono (code bits).
+- Type: Cormorant Garamond (display), Jost (text and labels), Mrs Saint Delafield (signature accents), IBM Plex Mono (code bits). Palette: onyx, ivory and champagne in dark; bone, ink and bronze in light.
 - Keyboard accessible and respects `prefers-reduced-motion`.
 
 ## Run locally

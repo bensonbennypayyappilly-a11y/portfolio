@@ -54,7 +54,7 @@
   function applyTheme(theme, persist) {
     root.dataset.theme = theme;
     if (persist) { try { localStorage.setItem('theme', theme); } catch { /* storage unavailable */ } }
-    metaTheme.setAttribute('content', theme === 'dark' ? '#070708' : '#f6f3ee');
+    metaTheme.setAttribute('content', theme === 'dark' ? '#0a0908' : '#f4efe7');
     if (lamp) {
       lamp.setAttribute('aria-pressed', String(theme === 'light'));
       lamp.setAttribute('aria-label', theme === 'dark' ? 'Pull the lamp to switch on the light theme' : 'Pull the lamp to switch back to the dark theme');
@@ -746,7 +746,7 @@
       const card = document.createElement('div');
       card.className = `rc-alert ${a.level}`;
       card.innerHTML = '<div class="rc-alert-head"><b></b><span></span></div><p class="rc-alert-meta"></p>'
-        + '<p class="rc-idea"><span class="spark-label">✦ Retention idea</span><span class="txt"></span></p>';
+        + '<p class="rc-idea"><span class="spark-label">Retention idea</span><span class="txt"></span></p>';
       $('b', card).textContent = a.title;
       $('.rc-alert-head span', card).textContent = money(amount);
       $('.rc-alert-meta', card).textContent = `${who} · notified ${clock().slice(0, 5)}`;
@@ -1008,12 +1008,11 @@
      ========================================================================== */
   function setLetter(s, f) {
     const base = Number(s.dataset.base);
-    s.style.fontVariationSettings = `"wght" ${Math.round(base + (900 - base) * f)}, "SOFT" 100, "WONK" ${s.dataset.wonk}`;
+    s.style.fontVariationSettings = `"wght" ${Math.round(base + (700 - base) * f)}`;
     s.style.setProperty('--f', f.toFixed(3));
   }
   function splitLetters(el) {
     const base = el.dataset.letters;
-    const wonk = el.tagName === 'EM' ? 1 : 0;
     const text = el.textContent;
     el.textContent = '';
     return Array.from(text).map((ch) => {
@@ -1021,7 +1020,6 @@
       s.className = 'ch';
       s.textContent = ch;
       s.dataset.base = base;
-      s.dataset.wonk = wonk;
       el.append(s);
       setLetter(s, 0);
       return s;
