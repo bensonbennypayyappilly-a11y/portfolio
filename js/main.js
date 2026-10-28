@@ -180,11 +180,9 @@
     setInterval(tick, 20000);
   }
 
-  /* ---------- Scroll: nav state, progress bar, timeline ---------- */
+  /* ---------- Scroll: nav state and progress bar ---------- */
   const nav = $('.nav');
   const bar = $('.progress span');
-  const timeline = $('.timeline');
-  const tlItems = $$('.tl-item');
   let ticking = false;
   function onScroll() {
     if (ticking) return;
@@ -195,13 +193,6 @@
       nav.classList.toggle('scrolled', y > 8);
       const max = root.scrollHeight - window.innerHeight;
       bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
-      if (timeline) {
-        const r = timeline.getBoundingClientRect();
-        const mark = window.innerHeight * 0.62;
-        const p = Math.max(0, Math.min(1, (mark - r.top) / r.height));
-        timeline.style.setProperty('--progress', p.toFixed(4));
-        tlItems.forEach((li) => li.classList.toggle('lit', li.getBoundingClientRect().top + 30 < mark));
-      }
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -233,149 +224,6 @@
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
   $$('.reveal').forEach((el) => revealObs.observe(el));
-
-  /* ---------- Count-up stats ---------- */
-  function countUp(el) {
-    const target = Number(el.dataset.count);
-    if (reduced()) { el.textContent = target; return; }
-    const start = performance.now();
-    const dur = 1200;
-    const step = (now) => {
-      const p = Math.min(1, (now - start) / dur);
-      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    el.textContent = '0';
-    requestAnimationFrame(step);
-  }
-  const statsEl = $('.stats');
-  if (statsEl) {
-    const statObs = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) return;
-      $$('[data-count]', statsEl).forEach(countUp);
-      statObs.disconnect();
-    }, { threshold: 0.4 });
-    statObs.observe(statsEl);
-  }
-
-  /* ---------- Hero rotator ---------- */
-  const rot = $('.rotator-text');
-  if (rot) {
-    const phrases = JSON.parse(rot.dataset.phrases);
-    const colors = ['var(--c-luvlit)', 'var(--c-oidoit)', 'var(--c-recoora)'];
-    let i = 0;
-    const swap = () => {
-      rot.textContent = phrases[i];
-      rot.style.setProperty('--rc', colors[i % colors.length]);
-    };
-    setInterval(() => {
-      if (document.hidden) return;
-      i = (i + 1) % phrases.length;
-      if (reduced()) { swap(); return; }
-      rot.classList.add('out');
-      setTimeout(() => {
-        swap();
-        rot.classList.remove('out');
-        rot.classList.add('in');
-        void rot.offsetWidth;
-        rot.classList.remove('in');
-      }, 400);
-    }, 3200);
-  }
-
-  /* ---------- Hero canvas: reactive dot field ---------- */
-  (function heroField() {
-    const canvas = $('.hero-canvas');
-    if (!canvas) return;
-    const hero = canvas.parentElement;
-    const ctx = canvas.getContext('2d');
-    const TAU = Math.PI * 2;
-    const RADIUS = 170;
-    let w = 0, h = 0, dots = [], colDot = '#fff', colAcc = '#f60';
-    let visible = true, raf = 0, lastMove = -1e4;
-    const m = { x: 0, y: 0, tx: 0, ty: 0 };
-
-    function readColors() {
-      const cs = getComputedStyle(root);
-      colDot = cs.getPropertyValue('--grid-dot').trim();
-      colAcc = cs.getPropertyValue('--accent').trim();
-    }
-    function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = hero.clientWidth;
-      h = hero.clientHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const gap = w < 640 ? 22 : 26;
-      dots = [];
-      for (let y = gap / 2; y < h; y += gap) for (let x = gap / 2; x < w; x += gap) dots.push(x, y);
-      if (!m.x) { m.x = m.tx = w * 0.6; m.y = m.ty = h * 0.45; }
-      draw(performance.now());
-    }
-    function draw(now) {
-      const t = now / 1000;
-      const still = reduced();
-      if (!still && now - lastMove > 2500) {
-        // Drift on its own when nobody is pointing at it (and on touch screens).
-        m.tx = w * (0.55 + 0.3 * Math.sin(t * 0.33));
-        m.ty = h * (0.45 + 0.28 * Math.sin(t * 0.51 + 1));
-      }
-      m.x += (m.tx - m.x) * 0.08;
-      m.y += (m.ty - m.y) * 0.08;
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = colDot;
-      ctx.beginPath();
-      const hot = [];
-      for (let i = 0; i < dots.length; i += 2) {
-        let x = dots[i], y = dots[i + 1];
-        const r = still ? 1 : 0.8 + 0.5 * (Math.sin(x * 0.011 + y * 0.007 + t * 1.1) * 0.5 + 0.5);
-        const dx = x - m.x, dy = y - m.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (!still && d < RADIUS) {
-          const f = 1 - d / RADIUS;
-          const e = f * f;
-          const push = (e * 16) / (d || 1);
-          hot.push(x + dx * push, y + dy * push, r + e * 2.6, e);
-        } else {
-          ctx.moveTo(x + r, y);
-          ctx.arc(x, y, r, 0, TAU);
-        }
-      }
-      ctx.fill();
-      ctx.fillStyle = colAcc;
-      for (let i = 0; i < hot.length; i += 4) {
-        ctx.globalAlpha = 0.2 + hot[i + 3] * 0.8;
-        ctx.beginPath();
-        ctx.arc(hot[i], hot[i + 1], hot[i + 2], 0, TAU);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    }
-    const loop = (now) => { draw(now); raf = requestAnimationFrame(loop); };
-    const start = () => { if (!raf && visible && !document.hidden && !reduced()) raf = requestAnimationFrame(loop); };
-    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
-
-    hero.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      const r = canvas.getBoundingClientRect();
-      m.tx = e.clientX - r.left;
-      m.ty = e.clientY - r.top;
-      lastMove = performance.now();
-    });
-    hero.addEventListener('pointerleave', () => { lastMove = -1e4; });
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }).observe(hero);
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-    mqReduce.addEventListener('change', () => { stop(); draw(performance.now()); start(); });
-    window.addEventListener('themechange', () => { readColors(); draw(performance.now()); });
-    let rt;
-    new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(resize, 120); }).observe(hero);
-
-    readColors();
-    resize();
-    start();
-  })();
 
   /* ---------- Pointer niceties (desktop only) ---------- */
   if (mqFine.matches) {
@@ -880,12 +728,11 @@
     };
     const openUrl = (url) => () => window.open(url, '_blank', 'noopener');
     const COMMANDS = [
+      { group: 'Jump to', label: 'Story', hint: 'From the beginning', keys: 'home top journey amazon kfc india', action: go('#top') },
       { group: 'Jump to', label: 'Work', hint: 'Three products, idea to launch', action: go('#work') },
       { group: 'Jump to', label: 'LuvLit', hint: 'Websites for local businesses', action: go('#luvlit') },
       { group: 'Jump to', label: 'OiDoit', hint: 'Execution companion', action: go('#oidoit') },
       { group: 'Jump to', label: 'Recoora', hint: 'AI-powered Stripe alerts', keys: 'stripe payments', action: go('#recoora') },
-      { group: 'Jump to', label: 'Journey', hint: 'The changelog', keys: 'experience amazon kfc career', action: go('#journey') },
-      { group: 'Jump to', label: 'Approach', hint: 'How I build', keys: 'principles', action: go('#approach') },
       { group: 'Jump to', label: 'Toolkit', hint: 'Skills mapped to proof', keys: 'skills', action: go('#toolkit') },
       { group: 'Jump to', label: 'Contact', hint: 'Let’s talk', keys: 'hire email', action: go('#contact') },
       { group: 'Actions', label: 'Copy email address', hint: EMAIL, action: copyEmail },
@@ -1050,11 +897,11 @@
       setTimeout(() => setLetter(s, 0), 420);
     }, i * 75));
   }
-  const heroLetters = $$('.hero-name [data-letters]').flatMap(splitLetters);
+  const heroLetters = $$('.story-name [data-letters]').flatMap(splitLetters);
   const footLetters = $$('.footer-name [data-letters]').flatMap(splitLetters);
   if (heroLetters.length) {
-    letterField($('.hero'), heroLetters, 260);
-    setTimeout(() => letterWave(heroLetters), 1100);
+    letterField($('.story'), heroLetters, 260);
+    setTimeout(() => letterWave(heroLetters), 2600);
   }
   if (footLetters.length) {
     letterField($('.footer'), footLetters, 300);
@@ -1101,100 +948,7 @@
   })();
 
   /* ==========================================================================
-     Draggable stickers with a little momentum
-     ========================================================================== */
-  (function stickers() {
-    const hero = $('.hero');
-    let topZ = 5;
-    $$('.sticker').forEach((el) => {
-      const rot = parseFloat(el.style.getPropertyValue('--r')) || 0;
-      let x = 0, y = 0, vx = 0, vy = 0, offX = 0, offY = 0, lastX = 0, lastY = 0, lastT = 0, raf = 0, dragging = false;
-      const apply = (tilt = 0) => { el.style.transform = `translate(${x}px, ${y}px) rotate(${rot + tilt}deg)`; };
-      const keepInside = () => {
-        const h = hero.getBoundingClientRect(), r = el.getBoundingClientRect();
-        if (r.left < h.left + 4) { x += h.left + 4 - r.left; vx = Math.abs(vx) * 0.5; }
-        if (r.right > h.right - 4) { x -= r.right - h.right + 4; vx = -Math.abs(vx) * 0.5; }
-        if (r.top < h.top + 72) { y += h.top + 72 - r.top; vy = Math.abs(vy) * 0.5; }
-        if (r.bottom > h.bottom - 4) { y -= r.bottom - h.bottom + 4; vy = -Math.abs(vy) * 0.5; }
-      };
-      el.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        cancelAnimationFrame(raf);
-        dragging = true;
-        el.setPointerCapture(e.pointerId);
-        el.classList.add('dragging');
-        el.style.zIndex = String(++topZ);
-        offX = e.clientX - x;
-        offY = e.clientY - y;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        lastT = performance.now();
-        vx = vy = 0;
-      });
-      el.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        const now = performance.now(), dt = Math.max(1, now - lastT);
-        vx = ((e.clientX - lastX) / dt) * 16;
-        vy = ((e.clientY - lastY) / dt) * 16;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        lastT = now;
-        x = e.clientX - offX;
-        y = e.clientY - offY;
-        apply(Math.max(-14, Math.min(14, vx * 1.4)));
-      });
-      const drop = () => {
-        if (!dragging) return;
-        dragging = false;
-        el.classList.remove('dragging');
-        if (reduced()) { keepInside(); apply(); return; }
-        const glide = () => {
-          vx *= 0.92;
-          vy *= 0.92;
-          x += vx;
-          y += vy;
-          keepInside();
-          apply(Math.max(-14, Math.min(14, vx * 1.4)));
-          if (Math.abs(vx) + Math.abs(vy) > 0.3) raf = requestAnimationFrame(glide);
-          else apply();
-        };
-        raf = requestAnimationFrame(glide);
-      };
-      el.addEventListener('pointerup', drop);
-      el.addEventListener('pointercancel', drop);
-    });
-  })();
-
-  /* ==========================================================================
-     Marquee that follows your scroll speed and direction
-     ========================================================================== */
-  (function marquee() {
-    const track = $('.marquee-track');
-    if (!track) return;
-    let x = 0, dir = -1, boost = 0, lastY = window.scrollY, half = 0, raf = 0, visible = false;
-    const measure = () => { half = track.scrollWidth / 2; };
-    const step = () => {
-      const dy = window.scrollY - lastY;
-      lastY = window.scrollY;
-      if (dy) dir = dy > 0 ? -1 : 1;
-      boost += (Math.min(60, Math.abs(dy)) - boost) * 0.1;
-      x += dir * (0.5 + boost * 0.3);
-      if (x <= -half) x += half;
-      if (x > 0) x -= half;
-      track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0) skewX(${(dir * boost * 0.25).toFixed(2)}deg)`;
-      raf = visible ? requestAnimationFrame(step) : 0;
-    };
-    new IntersectionObserver(([e]) => {
-      visible = e.isIntersecting && !reduced();
-      if (visible && !raf) { lastY = window.scrollY; raf = requestAnimationFrame(step); }
-    }).observe(track.parentElement);
-    measure();
-    if (document.fonts) document.fonts.ready.then(measure);
-    window.addEventListener('resize', measure);
-  })();
-
-  /* ==========================================================================
-     Desktop extras: custom cursor and card tilt
+     Desktop extra: custom cursor
      ========================================================================== */
   if (mqFine.matches && !reduced()) {
     const ring = document.createElement('div');
@@ -1234,20 +988,5 @@
     document.addEventListener('pointerdown', () => ring.classList.add('is-down'));
     document.addEventListener('pointerup', () => ring.classList.remove('is-down'));
     root.addEventListener('mouseleave', () => { ring.classList.add('hidden'); dot.classList.add('hidden'); });
-
-    $$('.principle, .tl-card').forEach((el) => {
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5;
-        const py = (e.clientY - r.top) / r.height - 0.5;
-        const k = Math.min(1, 380 / r.width);
-        el.style.transition = 'transform .15s ease-out';
-        el.style.transform = `perspective(900px) rotateX(${(-py * 6 * k).toFixed(2)}deg) rotateY(${(px * 8 * k).toFixed(2)}deg) translateY(-3px)`;
-      });
-      el.addEventListener('pointerleave', () => {
-        el.style.transition = 'transform .6s cubic-bezier(.16, 1, .3, 1)';
-        el.style.transform = '';
-      });
-    });
   }
 })();
