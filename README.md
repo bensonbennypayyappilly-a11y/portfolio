@@ -6,7 +6,7 @@ A dependency-free static site (HTML, CSS, vanilla JS). No build step, so it depl
 
 ## What's inside
 
-- **A story in one line (the homepage):** seven scroll-driven chapters, from an engineering degree in 2019, through the UK and Amazon back in India, to Recoora, LuvLit and OiDoit. One continuous line runs along the bottom and draws each chapter's scene as you scroll, while a little line-drawn me walks between scenes. Each chapter has its own muted colour. Jump between chapters with the ticks at the bottom right.
+- **A story in one line (the homepage):** one continuous, film-like panorama in seven chapters, from an engineering degree in Tamil Nadu (with a gopuram), through the UK (Tower Bridge and the London Eye), a flight home to India (the Taj Mahal and an auto-rickshaw), to Recoora, LuvLit and OiDoit. As you scroll, the camera glides along the line with eased inertia, a glowing pen tip draws ahead of it, and each drawing forms as the pen passes. A little line-drawn me walks the whole way and takes a pose at each chapter. Background colours blend continuously, and drawings keep moving on their own: the Eye turns, clouds drift, the lamp sways, the flag flutters.
 - **Selected work:** interactive demos of LuvLit (mini site builder), OiDoit (first-step finder) and Recoora (simulated Stripe alerts).
 - **Toolkit:** hover or tap a skill to see where it was used.
 - **The line continues:** contact, with the little me reaching for the lamp.
@@ -17,7 +17,7 @@ A dependency-free static site (HTML, CSS, vanilla JS). No build step, so it depl
 
 ### Editing the story
 
-Chapter text lives in the `STORY` section of `index.html`. Each `.chapter` has `data-x` (where the little me stands, in the scene's 1440-wide coordinates), `data-pose` (`wave`, `carry`, `laptop` or `point`) and `data-name`. Each chapter's drawing is the matching `.scene` group in the SVG above, with paths sitting on the baseline at `y = 470`. Chapter colours are the `--sc0` to `--sc6` variables in `css/story.css`.
+Chapter text lives in the `STORY` section of `index.html`. Each `.chapter` has `data-pose` (`wave`, `carry`, `laptop` or `point`) and `data-name`. Each chapter's drawing is the matching `.scene` group in the SVG above: scenes sit 1400 units apart, and paths with the `draw` class are revealed as the pen passes, sitting on the baseline at `y = 470`. Wrap a drawing in `spin`, `float`, `sway`, `drift`, `flag` or `flicker` to give it its own motion. Chapter colours are the `--sc0` to `--sc6` variables in `css/story.css`.
 
 ## Run locally
 
