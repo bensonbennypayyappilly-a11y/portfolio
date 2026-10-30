@@ -741,7 +741,7 @@
       { group: 'Actions', label: 'Pull the lamp', hint: 'Switch light / dark', keys: 'theme dark light mode', action: () => pullLamp() },
       { group: 'Links', label: 'Visit luvlit.in', hint: 'Live product', action: openUrl('https://luvlit.in') },
       { group: 'Links', label: 'Visit recoora.vercel.app', hint: 'Still live', keys: 'stripe', action: openUrl('https://recoora.vercel.app') },
-      { group: 'Links', label: 'GitHub', hint: 'bensonbennypayyappilly-a11y', action: openUrl('https://github.com/bensonbennypayyappilly-a11y') },
+      { group: 'Links', label: 'LinkedIn', hint: 'benson-benny', keys: 'profile cv', action: openUrl('https://www.linkedin.com/in/benson-benny-743675179/') },
     ];
     let filtered = COMMANDS;
     let sel = 0;

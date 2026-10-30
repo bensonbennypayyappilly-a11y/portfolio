@@ -35,7 +35,7 @@ python3 -m http.server 8080
 
 ## Things to fill in
 
-- **LinkedIn / X:** add them in the `contact-links` block in `index.html`.
+- **X or other profiles:** add them in the `contact-links` block in `index.html`, next to LinkedIn.
 - **Social preview image:** once deployed, change `og:image` in `index.html` to the absolute URL, for example `https://your-domain/og-image.png`.
 
 ## Structure
