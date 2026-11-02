@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>OiDoit promo</title>
+<script src="assets/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Jost"; src: url(assets/fonts/jost.woff2) format("woff2"); font-weight: 300 700; }
+@font-face { font-family: "Cormorant"; src: url(assets/fonts/cormorant-italic.woff2) format("woff2"); font-style: italic; font-weight: 500 600; }
+:root { --ink: #1d1f1c; --cream: #f8f5ef; --green: #5d7a66; --sage: #9aaa91; --gold: #c8a97a; --muted: #6a726e; --line: #e0dbd1; --night: #11130f; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
+body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+#root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
+.scene { position: absolute; inset: 0; }
+.w { display: inline-block; white-space: pre; }
+.serif { font-family: "Cormorant", serif; font-style: italic; font-weight: 600; letter-spacing: -.01em; }
+
+/* 1 · The pile */
+#s1 { z-index: 1; }
+#s1zoom { position: absolute; inset: 0; background: radial-gradient(circle at 50% 30%, rgba(154,170,145,.10), transparent 60%); }
+#s1-head { position: absolute; left: 0; right: 0; top: 250px; text-align: center; color: #f3efe6; font-weight: 600; font-size: 132px; line-height: 1.02; letter-spacing: -.045em; }
+#s1-head .serif { color: var(--sage); font-size: 156px; letter-spacing: -.02em; }
+.pill {
+  position: absolute; height: 104px; padding: 0 46px; border-radius: 999px; white-space: nowrap;
+  display: flex; align-items: center; gap: 18px; font-size: 42px; font-weight: 500; letter-spacing: -.02em;
+  background: #1c1f1a; color: #dcd7cc; border: 2px solid #343830; box-shadow: 0 30px 50px -20px rgba(0,0,0,.8);
+}
+.pill::before { content: ""; width: 26px; height: 26px; border-radius: 8px; border: 3px solid #5b6156; }
+.pill.alt { background: #262a23; }
+.pill.hot { color: #f0d9b5; border-color: #5a4c37; }
+.pill.hot::before { border-color: #8d7552; }
+
+/* Cream world */
+#bg { z-index: 2; background: var(--cream); overflow: hidden; }
+.blob { position: absolute; left: 0; top: 0; width: 1400px; height: 1400px; border-radius: 50%; }
+#blobA { background: radial-gradient(circle, rgba(154,170,145,.38), rgba(154,170,145,0) 62%); }
+#blobB { background: radial-gradient(circle, rgba(200,169,122,.26), rgba(200,169,122,0) 62%); }
+
+/* 2 · It's not you */
+#s2 { z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 120px; }
+#s2 p { font-weight: 600; font-size: 136px; line-height: 1.04; letter-spacing: -.045em; }
+#s2 .serif { color: var(--green); font-size: 190px; line-height: .95; }
+#s2 .l1 { margin-bottom: 70px; }
+
+/* Captions above the phone */
+.cap { z-index: 4; position: absolute; left: 70px; right: 70px; top: 150px; height: 430px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.cap .m { font-weight: 600; font-size: 84px; line-height: 1.04; letter-spacing: -.04em; }
+.cap .s { margin-top: 10px; color: var(--green); font-size: 80px; line-height: 1; }
+
+/* 3 · The app */
+#phone { z-index: 5; }
+#phoneWrap { position: absolute; left: 0; right: 0; top: 618px; display: flex; justify-content: center; transform-origin: 50% 0; }
+.device {
+  zoom: 2.05; position: relative; width: 296px; padding: 10px; border-radius: 46px; background: #0d0d0e; border: 1px solid #2c2c31;
+  box-shadow: 0 50px 80px -40px rgba(29,31,28,.55), inset 0 0 0 1px rgba(255,255,255,.06), 0 0 0 7px rgba(93,122,102,.10);
+}
+.island { position: absolute; top: 20px; left: 50%; z-index: 5; width: 86px; height: 24px; margin-left: -43px; border-radius: 999px; background: #000; }
+.screen { position: relative; height: 560px; overflow: hidden; border-radius: 37px; background: var(--cream); }
+.status { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 30px; font-size: 12.5px; font-weight: 600; }
+.bat { width: 22px; height: 11px; border: 1.5px solid var(--ink); border-radius: 3px; padding: 1px; }
+.bat i { display: block; width: 70%; height: 100%; border-radius: 1px; background: var(--ink); }
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 20px 14px; }
+.logo { font-weight: 700; font-size: 19px; letter-spacing: -.04em; }
+.logo b, .biglogo b { color: var(--green); font-weight: 700; }
+.hi { font-size: 13px; color: var(--muted); }
+.view { position: absolute; left: 18px; right: 18px; top: 92px; bottom: 20px; display: flex; flex-direction: column; }
+#vStep, #vWin { opacity: 0; }
+.h { font-size: 21px; line-height: 1.15; letter-spacing: -.03em; font-weight: 600; margin-bottom: 14px; }
+.h-sm { font-size: 15px; margin: 18px 0 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chips span, .seg span { height: 34px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 500; }
+.chips span.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.small { display: block; margin: 14px 0 6px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.input { height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff; display: flex; align-items: center; font-size: 14px; color: #a3a8a4; }
+.seg { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px; border-radius: 14px; background: #efebe3; }
+.seg span { position: relative; z-index: 1; border: 0; background: transparent; }
+#segSel { position: absolute; z-index: 0; top: 4px; left: 83.33px; width: 73.33px; height: 34px; border-radius: 999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.cta { margin-top: auto; height: 50px; border-radius: 16px; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
+.eyebrow { font-size: 11px; font-weight: 500; line-height: 1.3; text-transform: uppercase; letter-spacing: .08em; color: var(--green); }
+.step { margin-top: 10px; font-size: 21px; line-height: 1.25; letter-spacing: -.025em; font-weight: 600; min-height: 4.2em; }
+.timer { position: relative; width: 148px; height: 148px; margin: 4px auto 16px; display: grid; place-items: center; }
+.timer svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.timer circle { fill: none; stroke-width: 6; }
+.timer .track { stroke: #e7e2d9; }
+.timer .ring { stroke: var(--green); stroke-linecap: round; stroke-dasharray: 276.46; stroke-dashoffset: 0; }
+#time { font-size: 30px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn { height: 46px; border-radius: 14px; border: 1px solid var(--line); background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+.btn.dark { background: var(--ink); color: #fff; border-color: transparent; }
+.kind { margin-top: 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--muted); }
+.link { margin-top: auto; align-self: center; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.win { justify-content: center; text-align: center; }
+.burst { position: relative; width: 76px; height: 76px; margin: 0 auto 10px; border-radius: 50%; background: var(--green); }
+.burst::after { content: ""; position: absolute; left: 27px; top: 21px; width: 18px; height: 30px; border: solid #fff; border-width: 0 4px 4px 0; transform: rotate(45deg); }
+.burst i { position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: var(--green); opacity: 0; }
+.burst i:nth-child(even) { background: var(--gold); }
+.h-lg { font-size: 30px; margin: 4px 0 8px; }
+.winmsg { font-size: 15px; color: var(--muted); max-width: 26ch; margin: 0 auto; }
+.win .row { margin-top: 26px; }
+#finger, #ripple { position: absolute; left: 0; top: 0; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; opacity: 0; }
+#finger { z-index: 10; background: rgba(29,31,28,.28); border: 2px solid rgba(255,255,255,.85); box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+#ripple { z-index: 9; border: 2px solid var(--green); }
+
+/* Confetti from the win badge */
+#confetti { z-index: 6; pointer-events: none; }
+.cf { position: absolute; left: 531px; top: 1094px; width: 18px; height: 32px; border-radius: 6px; }
+.cf.round { width: 22px; height: 22px; border-radius: 50%; }
+
+/* 4 · Why */
+#s4 { z-index: 7; }
+#s4 .eb { position: absolute; top: 600px; left: 120px; font-size: 32px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--green); }
+.feat { position: absolute; left: 120px; right: 80px; display: flex; align-items: flex-start; gap: 40px; font-weight: 600; font-size: 92px; line-height: 1; letter-spacing: -.045em; }
+.feat .dot { flex: none; width: 40px; height: 40px; margin-top: 30px; border-radius: 50%; background: var(--green); }
+.feat .serif { color: var(--green); font-size: 112px; }
+#f1 { top: 720px; } #f2 { top: 960px; } #f3 { top: 1110px; }
+#f3 .dot { margin-top: 40px; }
+#s4 .rule { position: absolute; left: 120px; top: 1310px; height: 3px; width: 840px; background: var(--ink); opacity: .12; transform-origin: 0 50%; }
+
+/* 5 · End card */
+#s5 { z-index: 8; text-align: center; }
+#s5in { position: absolute; inset: 0; }
+.biglogo { position: absolute; left: 0; right: 0; top: 640px; font-weight: 700; font-size: 260px; line-height: 1; letter-spacing: -.055em; }
+.biglogo .ch { display: inline-block; }
+#swoosh { position: absolute; left: 230px; top: 920px; width: 620px; height: 80px; overflow: visible; }
+#swoosh path { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round; }
+.tag { position: absolute; left: 0; right: 0; top: 1050px; font-size: 96px; line-height: 1; }
+.ctaBig { position: absolute; left: 50%; top: 1250px; height: 132px; padding: 0 70px; border-radius: 999px; background: var(--ink); color: var(--cream); display: flex; align-items: center; gap: 22px; font-size: 48px; font-weight: 500; letter-spacing: -.02em; white-space: nowrap; }
+.ctaBig svg { width: 44px; height: 44px; stroke: var(--cream); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.fine { position: absolute; left: 0; right: 0; top: 1440px; font-size: 34px; color: var(--muted); letter-spacing: .01em; }
+.fine i { display: inline-block; width: 12px; height: 12px; margin: 0 18px 4px; border-radius: 50%; background: var(--sage); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920" data-fps="30">
+
+  <!-- 1 · Dark: the pile of things you keep putting off -->
+  <div id="s1" class="scene clip" data-start="0" data-duration="4.45" data-track-index="0">
+    <div id="s1zoom">
+      <div id="s1-head"><div data-split>That thing</div><div data-split>you keep</div><div class="serif" data-split>putting off?</div></div>
+      <div id="pills" data-layout-allow-overflow></div>
+    </div>
+  </div>
+
+  <!-- Cream world, opened by a circular wipe -->
+  <div id="bg" class="scene clip" data-start="3.72" data-duration="16.28" data-track-index="1">
+    <div class="blob" id="blobA"></div><div class="blob" id="blobB"></div>
+  </div>
+
+  <!-- 2 · Reassurance -->
+  <div id="s2" class="scene clip" data-start="4.3" data-duration="2.6" data-track-index="2">
+    <p class="l1" data-split>It’s not you.</p>
+    <p data-split>Starting is</p>
+    <p class="serif" data-split>just hard.</p>
+  </div>
+
+  <!-- 3 · Captions over the app walkthrough -->
+  <div id="c1" class="cap clip" data-start="6.85" data-duration="2.5" data-track-index="3"><p class="m" data-split>Tell it what you’re avoiding.</p><p class="s serif" data-split>and how you feel.</p></div>
+  <div id="c2" class="cap clip" data-start="9.3" data-duration="2.75" data-track-index="3"><p class="m" data-split>Get one tiny first step.</p><p class="s serif" data-split>sized to your energy.</p></div>
+  <div id="c3" class="cap clip" data-start="11.95" data-duration="2.6" data-track-index="3"><p class="m" data-split>Do it. Celebrate it.</p><p class="s serif" data-split>no shame, ever.</p></div>
+
+  <!-- 3 · The app -->
+  <div id="phone" class="scene clip" data-start="6.55" data-duration="8.2" data-track-index="4">
+    <div id="phoneWrap"><div id="phoneBob">
+      <div class="device">
+        <div class="island"></div>
+        <div class="screen" id="screen">
+          <div class="status"><span>9:41</span><span class="bat"><i></i></span></div>
+          <div class="top"><span class="logo">oi<b>do</b>it</span><span class="hi">Hey, you.</span></div>
+
+          <div class="view" id="vPick">
+            <p class="h">What are you putting off?</p>
+            <div class="chips"><span id="chEmails" class="on">Emails</span><span>Tidy room</span><span>Exercise</span><span>Study</span><span id="chPaper">Paperwork</span></div>
+            <span class="small">Or type your own</span>
+            <div class="input">e.g. call the bank</div>
+            <p class="h h-sm">How’s your energy right now?</p>
+            <div class="seg"><div id="segSel"></div><span id="eLow">Low</span><span>Okay</span><span>Good</span></div>
+            <div class="cta" id="cta">Find my first step</div>
+          </div>
+
+          <div class="view" id="vStep">
+            <p class="eyebrow">First step · Paperwork</p>
+            <p class="step" id="stepText" data-split>Find the document. Just put it on the table.</p>
+            <div class="timer"><svg viewBox="0 0 100 100"><circle class="track" cx="50" cy="50" r="44"/><circle class="ring" id="ring" cx="50" cy="50" r="44"/></svg><span id="time">2:00</span></div>
+            <div class="row"><div class="btn" id="startBtn">Start 2 min</div><div class="btn dark" id="doneBtn">I did it</div></div>
+            <p class="kind">Small is the point. You can stop after this.</p>
+            <span class="link">Pick something else</span>
+          </div>
+
+          <div class="view win" id="vWin">
+            <div class="burst" id="burst"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="h h-lg">That counts.</p>
+            <p class="winmsg">You started. That’s the hardest part.</p>
+            <div class="row"><div class="btn">Next tiny step</div><div class="btn dark">Call it a win</div></div>
+          </div>
+
+          <div id="ripple"></div><div id="finger"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <div id="confetti" data-layout-allow-overflow class="scene clip" data-start="11.95" data-duration="2.2" data-track-index="5"></div>
+
+  <!-- 4 · Why oidoit -->
+  <div id="s4" class="scene clip" data-start="14.55" data-duration="2.85" data-track-index="6">
+    <p class="eb" data-split>Why oidoit</p>
+    <div class="feat" id="f1"><span class="dot"></span><span><span data-split>Adapts to</span><br><span data-split>your energy.</span></span></div>
+    <div class="feat" id="f2"><span class="dot"></span><span data-split>Tiny first steps.</span></div>
+    <div class="feat" id="f3"><span class="dot"></span><span class="serif" data-split>Zero shame.</span></div>
+    <div class="rule"></div>
+  </div>
+
+  <!-- 5 · End card -->
+  <div id="s5" class="scene clip" data-start="17.1" data-duration="2.9" data-track-index="7">
+    <div id="s5in">
+      <div class="biglogo" id="biglogo"><span class="ch">o</span><span class="ch">i</span><b class="ch">d</b><b class="ch">o</b><span class="ch">i</span><span class="ch">t</span></div>
+      <svg id="swoosh" viewBox="0 0 620 80"><path id="swooshPath" d="M10 52 C 140 18, 300 70, 420 40 S 580 22, 610 34"/></svg>
+      <p class="tag serif" data-split>Start small. Follow through.</p>
+      <div class="ctaBig" id="ctaBig">Join the Founding 100<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <p class="fine" id="fine">Pre-launch<i></i>An execution companion</p>
+    </div>
+  </div>
+
+  <audio id="music" data-start="0" data-duration="20" data-track-index="8" data-volume="1" data-fade-out="0.5" src="assets/soundtrack.wav"></audio>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* Split [data-split] text into word spans so words can animate one by one. */
+  $$('[data-split]').forEach((el) => {
+    const parts = el.textContent.split(/(\s+)/); el.textContent = '';
+    parts.forEach((w) => {
+      if (!w) return;
+      if (/^\s+$/.test(w)) return el.appendChild(document.createTextNode(' '));
+      const s = document.createElement('span'); s.className = 'w'; s.textContent = w; el.appendChild(s);
+    });
+  });
+  const W = (sel) => $$('.w', typeof sel === 'string' ? $(sel) : sel);
+
+  /* Build the pile and the confetti (seeded, so every render is identical). */
+  const PILLS = [
+    ['Reply to emails', 330, 1745, -3, ''], ['Taxes', 815, 1748, 4, 'hot'], ['Paperwork', 590, 1632, -8, 'alt'],
+    ['Call the bank', 250, 1622, 9, ''], ['Laundry', 880, 1610, -5, 'alt'], ['Study for exam', 470, 1505, 5, ''],
+    ['Dentist', 850, 1490, 12, 'hot'], ['Gym', 170, 1480, -14, 'alt'], ['Pay bills', 650, 1385, -4, ''],
+    ['Fix my CV', 320, 1368, 7, 'hot'], ['Tidy room', 560, 1262, -10, 'alt'],
+  ];
+  const pillEls = PILLS.map(([label, x, y, , cls]) => {
+    const d = document.createElement('div'); d.className = 'pill ' + cls; d.textContent = label;
+    d.style.left = x + 'px'; d.style.top = y + 'px'; $('#pills').appendChild(d); return d;
+  });
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const CF = Array.from({ length: 26 }, (_, i) => {
+    const d = document.createElement('div');
+    d.className = 'cf' + (i % 3 === 0 ? ' round' : '');
+    d.style.background = ['#9aaa91', '#5d7a66', '#c8a97a', '#1d1f1c', '#e0c9a2'][i % 5];
+    $('#confetti').appendChild(d);
+    const a = -Math.PI / 2 + (rnd() - 0.5) * Math.PI * 1.5, v = 520 + rnd() * 620;
+    return { el: d, dx: Math.cos(a) * v, up: Math.min(0, Math.sin(a) * v), r: (rnd() - 0.5) * 1400, delay: rnd() * 0.08 };
+  });
+
+  /* Tap targets inside the phone, measured from layout when the tween first renders. */
+  const rel = (sel) => {
+    const el = $(sel); let x = el.offsetWidth / 2, y = el.offsetHeight / 2, n = el;
+    while (n && n.id !== 'screen') { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+    return { x, y: y + 6 };
+  };
+
+  /* ---------------- timeline ---------------- */
+  const tl = gsap.timeline({ paused: true });
+  const rise = (els, at, o = {}) => tl.fromTo(els, { opacity: 0, y: o.dy ?? 46, filter: 'blur(12px)' },
+    { opacity: 1, y: 0, filter: 'blur(0px)', duration: o.dur ?? 0.75, ease: 'expo.out', stagger: o.stagger ?? 0.07 }, at);
+  const fall = (els, at, o = {}) => tl.fromTo(els, { opacity: 1, y: 0, filter: 'blur(0px)' },
+    { opacity: 0, y: -(o.dy ?? 36), filter: 'blur(10px)', duration: 0.32, ease: 'power3.in', stagger: 0.012, immediateRender: false }, at);
+  const press = (sel, at) => tl.to(sel, { scale: 0.93, duration: 0.09, ease: 'power2.out', yoyo: true, repeat: 1 }, at - 0.04);
+
+  // 1 · "That thing you keep putting off?" while tasks pile up
+  $$('#s1-head > div').forEach((line, i) => { rise(W(line), 0.2 + i * 0.28, { dy: 60 }); fall(W(line), 3.62); });
+  tl.fromTo('#s1zoom', { scale: 1 }, { scale: 1.03, duration: 2.6, ease: 'none' }, 1.1);
+  pillEls.forEach((el, i) => {
+    const [, , y, r] = PILLS[i], t0 = 1.05 + i * 0.19, land = t0 + 0.42;
+    tl.fromTo(el, { xPercent: -50, yPercent: -50, y: -(y + 240), rotation: r * 3 - 20 }, { y: 0, rotation: r, duration: 0.42, ease: 'power2.in' }, t0);
+    tl.to(el, { y: -24, duration: 0.13, ease: 'power2.out' }, land);
+    tl.to(el, { y: 0, duration: 0.17, ease: 'power2.in' }, land + 0.13);
+    tl.fromTo(el, { scaleY: 0.88 }, { scaleY: 1, duration: 0.16, ease: 'power2.out', immediateRender: false }, land);
+    tl.fromTo('#s1', { x: 0, y: 0 }, { keyframes: [{ x: 4, y: 7, duration: 0.04 }, { x: -2, y: -4, duration: 0.05 }, { x: 1, y: 2, duration: 0.04 }, { x: 0, y: 0, duration: 0.04 }], immediateRender: false }, land);
+  });
+  tl.to(pillEls, { y: '+=1500', rotation: (i) => (i % 2 ? '+=60' : '-=60'), duration: 0.7, ease: 'power2.in', stagger: 0.012 }, 3.72);
+
+  // Wipe into the cream world; soft colour blobs drift for the rest of the film
+  tl.fromTo('#bg', { clipPath: 'circle(0px at 540px 1000px)' }, { clipPath: 'circle(2300px at 540px 1000px)', duration: 0.7, ease: 'power3.inOut' }, 3.72);
+  tl.fromTo('#blobA', { x: -560, y: -320 }, { x: -340, y: -80, duration: 16.28, ease: 'sine.inOut' }, 3.72);
+  tl.fromTo('#blobB', { x: 380, y: 1060 }, { x: 140, y: 820, duration: 16.28, ease: 'sine.inOut' }, 3.72);
+
+  // 2 · "It's not you. Starting is just hard."
+  const s2 = $$('#s2 p');
+  rise(W(s2[0]), 4.4, { dy: 60 }); rise(W(s2[1]), 5.05, { dy: 60 }); rise(W(s2[2]), 5.35, { dy: 60, dur: 0.9 });
+  s2.forEach((p, i) => fall(W(p), 6.45 + i * 0.04));
+
+  // 3 · Captions
+  [['#c1', 6.85, 8.95], ['#c2', 9.3, 11.6], ['#c3', 11.95, 14.1]].forEach(([id, a, b]) => {
+    const [m, s] = $$('p', $(id));
+    rise(W(m), a, { stagger: 0.06 }); rise(W(s), a + 0.35, { stagger: 0.06 });
+    fall(W(m), b); fall(W(s), b + 0.05);
+  });
+
+  // 3 · Phone in, gentle float, out
+  tl.fromTo('#phoneWrap', { y: 1350, rotation: -7 }, { y: 0, rotation: 0, duration: 1.1, ease: 'expo.out' }, 6.55);
+  tl.to('#phoneBob', { y: 7, duration: 1.6, ease: 'sine.inOut', yoyo: true, repeat: 3 }, 7.65);
+  tl.to('#phoneWrap', { y: 1450, rotation: 5, duration: 0.55, ease: 'power3.in' }, 14.15);
+
+  // Pick: Paperwork, Low energy, Find my first step
+  const TAP = { paper: ['#chPaper', 7.45], low: ['#eLow', 8.1], cta: ['#cta', 8.75], start: ['#startBtn', 9.8], done: ['#doneBtn', 11.5] };
+  tl.to('#chEmails', { backgroundColor: '#ffffff', color: '#1d1f1c', borderColor: '#e0dbd1', duration: 0.15 }, 7.45);
+  tl.to('#chPaper', { backgroundColor: '#1d1f1c', color: '#ffffff', borderColor: '#1d1f1c', duration: 0.15 }, 7.45);
+  tl.to('#segSel', { x: -79.33, duration: 0.4, ease: 'back.out(1.6)' }, 8.1);
+  ['paper', 'cta', 'start', 'done'].forEach((k) => press(TAP[k][0], TAP[k][1]));
+
+  // Finger: glides between taps, presses, ripples
+  [['paper', 'low', 'cta'], ['start', 'done']].forEach((g) => {
+    const first = TAP[g[0]][1], last = TAP[g[g.length - 1]][1];
+    tl.set('#finger', { x: () => rel(TAP[g[0]][0]).x, y: () => rel(TAP[g[0]][0]).y }, first - 0.5);
+    tl.fromTo('#finger', { opacity: 0, scale: 1.35 }, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out', immediateRender: false }, first - 0.5);
+    g.forEach((k, i) => {
+      const [sel, T] = TAP[k];
+      if (i > 0) tl.to('#finger', { x: () => rel(sel).x, y: () => rel(sel).y, duration: 0.38, ease: 'power2.inOut' }, T - 0.42);
+      tl.to('#finger', { scale: 0.78, duration: 0.08, ease: 'power2.out', yoyo: true, repeat: 1 }, T - 0.06);
+      tl.set('#ripple', { x: () => rel(sel).x, y: () => rel(sel).y }, T);
+      tl.fromTo('#ripple', { opacity: 0.7, scale: 1 }, { opacity: 0, scale: 2.6, duration: 0.5, ease: 'power2.out', immediateRender: false }, T);
+    });
+    tl.to('#finger', { opacity: 0, duration: 0.2 }, last + 0.22);
+  });
+
+  // Step view: a tiny first step and a two-minute timer (time-lapsed)
+  tl.to('#vPick', { opacity: 0, x: -30, duration: 0.3, ease: 'power3.out' }, 9.0);
+  tl.fromTo('#vStep', { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.52, ease: 'expo.out', immediateRender: false }, 9.08);
+  rise(W('#stepText'), 9.2, { dy: 10, stagger: 0.05, dur: 0.6 });
+  tl.fromTo('#ring', { strokeDashoffset: 0 }, { strokeDashoffset: 276.46, duration: 1.25, ease: 'sine.inOut' }, 9.95);
+
+  // Win view: badge pops, dots burst, confetti across the frame
+  tl.to('#vStep', { opacity: 0, x: -30, duration: 0.3, ease: 'power3.out' }, 11.75);
+  tl.fromTo('#vWin', { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.52, ease: 'expo.out', immediateRender: false }, 11.83);
+  tl.fromTo('#burst', { scale: 0.6 }, { scale: 1, duration: 0.5, ease: 'back.out(2.2)' }, 11.9);
+  $$('#burst i').forEach((d, i) => {
+    const a = (i * Math.PI) / 4;
+    tl.fromTo(d, { x: 0, y: 0, opacity: 1 }, { x: Math.sin(a) * 64, y: -Math.cos(a) * 64, opacity: 0, duration: 0.8, ease: 'power3.out', immediateRender: false }, 12.0);
+  });
+  CF.forEach((c) => {
+    const at = 11.95 + c.delay;
+    tl.fromTo(c.el, { x: 0, opacity: 1, rotation: 0 }, { x: c.dx, rotation: c.r, duration: 1.9, ease: 'power2.out' }, at);
+    tl.fromTo(c.el, { y: 0 }, { y: c.up, duration: 0.45, ease: 'power2.out' }, at);
+    tl.to(c.el, { y: 1200, duration: 1.45, ease: 'power2.in' }, at + 0.45);
+    tl.to(c.el, { opacity: 0, duration: 0.5 }, at + 1.4);
+  });
+
+  // 4 · Why oidoit
+  rise(W('#s4 .eb'), 14.65, { dy: 20 }); fall(W('#s4 .eb'), 16.85);
+  ['#f1', '#f2', '#f3'].forEach((id, i) => {
+    const t0 = 14.9 + i * 0.4;
+    tl.fromTo(`${id} .dot`, { scale: 0 }, { scale: 1, duration: 0.4, ease: 'back.out(2)' }, t0);
+    tl.to(`${id} .dot`, { scale: 0, duration: 0.25, ease: 'power2.in' }, 16.85 + i * 0.05);
+    $$('[data-split]', $(id)).forEach((el, j) => { rise(W(el), t0 + 0.08 + j * 0.12, { dy: 54, stagger: 0.06 }); fall(W(el), 16.85 + i * 0.05); });
+  });
+  tl.fromTo('#s4 .rule', { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'expo.out' }, 16.05);
+  tl.to('#s4 .rule', { scaleX: 0, duration: 0.3, ease: 'power2.in' }, 16.85);
+
+  // 5 · Logo, drawn line, tagline, call to action
+  tl.fromTo('#s5in', { scale: 1 }, { scale: 1.025, duration: 2.85, ease: 'sine.inOut' }, 17.15);
+  tl.fromTo('#biglogo .ch', { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.8)', stagger: 0.06 }, 17.15);
+  const path = $('#swooshPath'), len = path.getTotalLength();
+  tl.fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.7, ease: 'power3.inOut' }, 17.7);
+  rise(W('.tag'), 17.9, { stagger: 0.08 });
+  tl.fromTo('#ctaBig', { xPercent: -50, scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)' }, 18.4);
+  tl.fromTo('#fine', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 18.75);
+
+  tl.set({}, {}, 20); // pin the timeline to the full 20 s
+
+  // Text that follows the playhead (countdown and button label), recomputed on every seek
+  const timeEl = $('#time'), startBtn = $('#startBtn');
+  tl.eventCallback('onUpdate', () => {
+    const t = tl.time(), p = gsap.utils.clamp(0, 1, (t - 9.95) / 1.25);
+    const eased = -(Math.cos(Math.PI * p) - 1) / 2, s = Math.ceil(120 * (1 - eased));
+    timeEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    startBtn.textContent = t < 9.8 ? 'Start 2 min' : p < 1 ? 'Pause' : 'Done!';
+  });
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines['main'] = tl;
+  tl.seek(0);
+})();
+</script>
+</body>
+</html>

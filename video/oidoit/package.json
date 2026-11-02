@@ -1,0 +1,19 @@
+{
+  "name": "oidoit-promo",
+  "version": "1.0.0",
+  "description": "20-second OiDoit promo video, built with HyperFrames",
+  "scripts": {
+    "dev": "hyperframes preview",
+    "check": "hyperframes check",
+    "snapshot": "hyperframes snapshot",
+    "soundtrack": "python3 tools/soundtrack.py assets/soundtrack.wav",
+    "render": "hyperframes render -q delivery -o oidoit-promo.mp4"
+  },
+  "devDependencies": {
+    "hyperframes": "^0.9.2"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0"
+  },
+  "private": true
+}
