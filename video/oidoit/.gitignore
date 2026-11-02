@@ -2,3 +2,5 @@ node_modules/
 .hyperframes/
 snapshots/
 renders/
+work-*/
+.*.hf-transaction-*/
