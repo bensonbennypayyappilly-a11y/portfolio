@@ -12,7 +12,7 @@ A 20-second vertical promo for OiDoit, built with [HyperFrames](https://hyperfra
 | 3.7–6.9 s | Relief | Circular wipe to cream. "It's not you. Starting is just hard." |
 | 6.6–14.7 s | The app | The phone walks through picking *Paperwork* at *Low* energy, a tiny first step with a 2-minute timer, then the win screen with confetti |
 | 14.6–17.4 s | Why | Adapts to your energy · Tiny first steps · Zero shame |
-| 17.1–20 s | End card | oidoit logo, "Start small. Follow through.", "Join the Founding 100" |
+| 17.1–20 s | End card | oidoit logo, "Start small. Follow through.", "Pre-launch · An execution companion" |
 
 The soundtrack (`assets/soundtrack.wav`) is synthesised by `tools/soundtrack.py`. It is timed to every cue: a thud for each landing task, a whoosh on the wipe, UI taps, timer ticks, a win chime and a logo hit. It is mastered to about −14 LUFS.
 

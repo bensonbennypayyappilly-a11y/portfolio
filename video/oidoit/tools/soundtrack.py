@@ -123,7 +123,7 @@ add(thud(80, 36, 1.2), 17.15, 0.55)
 add(pad([41, 53, 57, 60, 64, 67, 69], 2.85, 0.08, 1.6), 17.15, 0.3)
 for k, m in enumerate([72, 76, 79, 84]):
     add(bell(m, 2.6), 17.15 + k * 0.09, 0.09, pan=(-0.3 + 0.2 * k))
-add(click(1600, 0.06), 18.4, 0.15); add(pluck(84, 1.2, 0.5), 18.4, 0.08)
+add(click(1600, 0.06), 18.4, 0.15)  # closing line lands; add(pluck(84, 1.2, 0.5), 18.4, 0.08)
 
 # ---- Space: a couple of soft echoes, then glue and normalise ----
 for dly, g in ((0.137, 0.22), (0.291, 0.12)):

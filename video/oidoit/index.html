@@ -8,7 +8,7 @@
 <style>
 @font-face { font-family: "Jost"; src: url(assets/fonts/jost.woff2) format("woff2"); font-weight: 300 700; }
 @font-face { font-family: "Cormorant"; src: url(assets/fonts/cormorant-italic.woff2) format("woff2"); font-style: italic; font-weight: 500 600; }
-:root { --ink: #1d1f1c; --cream: #f8f5ef; --green: #5d7a66; --sage: #9aaa91; --gold: #c8a97a; --muted: #6a726e; --line: #e0dbd1; --night: #11130f; }
+:root { --ink: #1d1f1c; --cream: #f8f5ef; --green: #5d7a66; --sage: #9aaa91; --gold: #c8a97a; --muted: #616965; --line: #e0dbd1; --night: #11130f; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--night); }
 body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
@@ -78,7 +78,7 @@ body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothin
 .seg span { position: relative; z-index: 1; border: 0; background: transparent; }
 #segSel { position: absolute; z-index: 0; top: 4px; left: 83.33px; width: 73.33px; height: 34px; border-radius: 999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 .cta { margin-top: auto; height: 50px; border-radius: 16px; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; }
-.eyebrow { font-size: 11px; font-weight: 500; line-height: 1.3; text-transform: uppercase; letter-spacing: .08em; color: var(--green); }
+.eyebrow { font-size: 11px; font-weight: 500; line-height: 1.3; text-transform: uppercase; letter-spacing: .08em; color: #5b7764; }
 .step { margin-top: 10px; font-size: 21px; line-height: 1.25; letter-spacing: -.025em; font-weight: 600; min-height: 4.2em; }
 .timer { position: relative; width: 148px; height: 148px; margin: 4px auto 16px; display: grid; place-items: center; }
 .timer svg { position: absolute; inset: 0; transform: rotate(-90deg); }
@@ -126,9 +126,7 @@ body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothin
 #swoosh { position: absolute; left: 230px; top: 920px; width: 620px; height: 80px; overflow: visible; }
 #swoosh path { fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round; }
 .tag { position: absolute; left: 0; right: 0; top: 1050px; font-size: 96px; line-height: 1; }
-.ctaBig { position: absolute; left: 50%; top: 1250px; height: 132px; padding: 0 70px; border-radius: 999px; background: var(--ink); color: var(--cream); display: flex; align-items: center; gap: 22px; font-size: 48px; font-weight: 500; letter-spacing: -.02em; white-space: nowrap; }
-.ctaBig svg { width: 44px; height: 44px; stroke: var(--cream); stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.fine { position: absolute; left: 0; right: 0; top: 1440px; font-size: 34px; color: var(--muted); letter-spacing: .01em; }
+.fine { position: absolute; left: 0; right: 0; top: 1230px; font-size: 38px; color: var(--muted); letter-spacing: .01em; }
 .fine i { display: inline-block; width: 12px; height: 12px; margin: 0 18px 4px; border-radius: 50%; background: var(--sage); }
 </style>
 </head>
@@ -218,7 +216,6 @@ body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothin
       <div class="biglogo" id="biglogo"><span class="ch">o</span><span class="ch">i</span><b class="ch">d</b><b class="ch">o</b><span class="ch">i</span><span class="ch">t</span></div>
       <svg id="swoosh" viewBox="0 0 620 80"><path id="swooshPath" d="M10 52 C 140 18, 300 70, 420 40 S 580 22, 610 34"/></svg>
       <p class="tag serif" data-split>Start small. Follow through.</p>
-      <div class="ctaBig" id="ctaBig">Join the Founding 100<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
       <p class="fine" id="fine">Pre-launch<i></i>An execution companion</p>
     </div>
   </div>
@@ -374,8 +371,7 @@ body { font-family: "Jost", sans-serif; color: var(--ink); -webkit-font-smoothin
   const path = $('#swooshPath'), len = path.getTotalLength();
   tl.fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.7, ease: 'power3.inOut' }, 17.7);
   rise(W('.tag'), 17.9, { stagger: 0.08 });
-  tl.fromTo('#ctaBig', { xPercent: -50, scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)' }, 18.4);
-  tl.fromTo('#fine', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 18.75);
+  tl.fromTo('#fine', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 18.4);
 
   tl.set({}, {}, 20); // pin the timeline to the full 20 s
 
