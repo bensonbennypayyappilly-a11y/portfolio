@@ -1,0 +1,11 @@
+{
+  "name": "oidoit-series",
+  "private": true,
+  "description": "Sam starts small: a 10-part OiDoit reel series, built with HyperFrames",
+  "scripts": {
+    "check": "hyperframes check",
+    "theme": "python3 tools/theme.py assets/theme.wav",
+    "render": "node tools/render-all.mjs"
+  },
+  "devDependencies": { "hyperframes": "0.9.2" }
+}
